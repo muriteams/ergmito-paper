@@ -1,9 +1,14 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\usepackage[utf8]{inputenc}
 
+\usepackage{setspace}
+\onehalfspacing
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{linkcolor=blue, allcolors=true}
+\usepackage[utf8]{inputenc}
 % Notation
 \input{ergmitos-header.tex}
 
@@ -47,7 +52,21 @@ Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\
 \caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
 \end{figure}
 
+Ultimately, while mentioned several times throughout the literature \cite{Frank1986,Wasserman1996}, the use of exponential random graph models for "small networks"--which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers--is not observed as often as in the case of "larger" networks, leave alone calculating the likelihood function using exhaustive enumeration--which we will refer as exact likelihood--instead of simulation-based approaches as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based methods have not been developed with this in mind.
+
+The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the "off diagonal" components to zero (structural zeros). The problem with this approach lies on th fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable.
+
 \section{Estimation of {\it ERGMitos}}
+
+In modern computers, calculating the exact likelihood function of an exponential random graph model for a small network becomes computationally feasible. This has a direct impact in the estimation process as, wanted we to try to fit an ERGM to a small network, the trackability of the likelihood function allow using direct methods for obtaining the Maximum Likelihood Estimates (MLEs), in particular, maximization functions that do not require approximating the likelihood itself. This has an important implication: the estimation process of the parameters of an ERGMs of a small networks can be done directly without having to rescue the situation by using simulations. This way, besides of obtaining a better solution (in general), we are completely avoiding the degeneracy problem.
+
+Moreover, since most of small network data comes in the form of multiple networks--for example, families, small teams, ego-networks, etc.--assuming that the data generating process is shared across the sampled networks, then obtaining pooled estimates is a natural way of estimating of modeling the graphs. Pairing up the previous assumption with an independence independence across graphs, allows us calculating the exact likelihood function for pooled estimates.
+
+
+
+
+
+
 
 What is small? It depends, in the case of simple networks--undirected graphs--the support has has $2^{n(n-1)/2}$ networks, which means that for a graph of size 7 there are 2,097,152 possible networks to be considered in the model. From the practical point of view, this actually is more simple as the exhaustive enumeration of graphs has to be done only once, in particular, let $\mathcal{W}(m)$ be the powerset of vector statistics associated with model $m$, $q(w)\equiv |\{y\in\mathcal{Y}: s(y,x) = w\}|$, then \eqref{eq:ergm} can be expressed as:
 
@@ -63,14 +82,23 @@ We conducted a simulation study to explore the properties of MLE for small netwo
 
 We simulated 100,000 samples, each one composed of an average of 30 networks.
 
-\section{References}
+\begin{figure}
+	\centering
+	\includegraphics[width=.9\linewidth]{power-02-various-sizes-3-5.pdf}
+\end{figure}
+
+\bibliographystyle{plain}
+\bibliography{bibliography.bib}
+
 
 \appendix
 
 \section{Gradient function}
 
 \begin{equation}
-\nabla l(\theta) = \transpose{\stats{\Mat{x}}} - \frac{\transpose{\Mat{Q}}\left(\transpose{\Mat{W}} \circ \exp{\Mat{Q} \theta}\right)}{\kappa}
+\nabla l(\theta) = \transpose{\sufstats{\adjmat, \Indepvar}} - \frac{\transpose{Q}\left(\transpose{\adjmat} \circ \exp{Q \theta}\right)}{\kappa}
 \end{equation}
+
+
 
 \end{document}
