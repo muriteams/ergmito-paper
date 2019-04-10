@@ -24,7 +24,9 @@ To be submitted at https://arxiv.org/help/submit
 
 \section{Introduction}
 
-Exponential-Family Graph Models (ERGMs), are certainly one of the most popular tools used by social scientists interested on understanding social networks.
+\section{Exponential-Family Random Graph Models}
+
+Exponential-Family Random Graph Models (ERGMs), are certainly one of the most popular tools used by social scientists interested on understanding social networks \cite[and others]{Robins2007,Holland1981,Wasserman1996,Snijders2006}. In this family of models, an observed graph $\adjmat$, or more commonly put, its adjacency matrix representation, is characterized by a set of sufficient statistics, which we denote $\sufstats{}$, as follows:
 
 \begin{equation}
 \label{eq:ergm}
@@ -35,7 +37,7 @@ Exponential-Family Graph Models (ERGMs), are certainly one of the most popular t
   },\quad\forall \adjmat\in\ADJMAT
 \end{equation}
 
-Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant.
+\noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model which is usually assumed to include all directed graphs of the same size as $\adjmat$, that are directed, and do not include self-ties; in this particular case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. Such makes the exact calculation of $\normconst{}$, and hence of \eqref{eq:ergm} extremely complicated to calculate.
 
 \def\fig1width{.45\linewidth}
 \begin{figure}
@@ -52,23 +54,84 @@ Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\
 \caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
 \end{figure}
 
-Ultimately, while mentioned several times throughout the literature \cite{Frank1986,Wasserman1996}, the use of exponential random graph models for "small networks"--which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers--is not observed as often as in the case of "larger" networks, leave alone calculating the likelihood function using exhaustive enumeration--which we will refer as exact likelihood--instead of simulation-based approaches as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based methods have not been developed with this in mind.
+Ultimately, while mentioned several times throughout the literature \cite{Wasserman1996,Frank1986,Snijders2011}, the use of exponential random graph models for "small networks" (which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers) is not observed as often as in the case of "larger" networks, leave alone calculating the likelihood function using exhaustive enumeration (which we will refer as exact likelihood) instead of simulation-based estimation methods as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based estimation methods have not been developed with this in mind.\footnote{Perhaps because that, as put by \cite{Snijders2011}, small networks are considered to be "uninteresting special cases"}
 
-The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the "off diagonal" components to zero (structural zeros). The problem with this approach lies on th fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable.
+The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the "off diagonal" components to zero (structural zeros). The problem with this approach lies on the fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable. In this paper, we present a revisit of the Exponential Random Graph Models for small networks, the estimation process that can be used in such case, and some results from an extensive simulation study that we conducted.
 
-\section{Estimation of {\it ERGMitos}}
+\section{ERGM{\it{}itos}: ERGMs for small networks}
 
-In modern computers, calculating the exact likelihood function of an exponential random graph model for a small network becomes computationally feasible. This has a direct impact in the estimation process as, wanted we to try to fit an ERGM to a small network, the trackability of the likelihood function allow using direct methods for obtaining the Maximum Likelihood Estimates (MLEs), in particular, maximization functions that do not require approximating the likelihood itself. This has an important implication: the estimation process of the parameters of an ERGMs of a small networks can be done directly without having to rescue the situation by using simulations. This way, besides of obtaining a better solution (in general), we are completely avoiding the degeneracy problem.
+In modern computers, calculating the exact likelihood function of an exponential random graph model for a small network becomes computationally feasible. This has an important implication: the estimation process of the parameters of an ERGMs of a small networks can be done directly without having to use simulations like modern methods do when fitting this kind of models. This way, besides of obtaining a better solution (in general), if the MLEs exists, we avoid the degeneracy problem. It is important to notice that, while the degeneracy problem is not completely avoided, we are indeed reaching a better situation compared to what we would get if we were using MC-MLE estimation, for example. One result by \cite[p. 7]{Handcock2003}, "[i]f the model used to simulate the graphs is not close enough to produce realizations that cover the observed values of the statistics, the MC-MLE will not exist even in cases where the MLE does.", in other words, while the non-existence of MLE estimates implies the non-existence of MC-MLE estimates, the opposite is not true.
 
-Moreover, since most of small network data comes in the form of multiple networks--for example, families, small teams, ego-networks, etc.--assuming that the data generating process is shared across the sampled networks, then obtaining pooled estimates is a natural way of estimating of modeling the graphs. Pairing up the previous assumption with an independence independence across graphs, allows us calculating the exact likelihood function for pooled estimates.
+Since most of small network data comes in the form of multiple networks--for example, families, small teams, ego-networks, etc.--assuming that the data generating process is shared across the sampled networks, then obtaining pooled estimates is a natural way of estimating of modeling the graphs. Pairing up the previous assumption with an independence independence across graphs, allows us calculating the exact likelihood function for pooled estimates by maximizing the following:
 
+\begin{equation}
+    \label{eq:ergm-pooled}
+    \Prcond{\Adjmat_1 = \adjmat_1, \dots, \Adjmat_P = \adjmat_P}{\params, \Indepvar_1, \dots, \Indepvar_p} = \prod_{p=1}^P\frac{%
+    		\exp{\transpose{\params}\sufstats{\adjmat_p, \Indepvar_p}}%	
+    	}{
+    		\kappa_p\left(\params, \Indepvar_p\right)
+    	}
+\end{equation}
 
+\noindent Where $P$ denotes the number of networks used in the model. We call this model ERGMito\footnote{The \textit{ito}/\textit{ita} suffix is used in Spanish to denote small, or affection. We are particularly grateful to George Barnett who proposed the name during the North American Social Networks Conference on 2018.}.
 
+One potential problem that we are not addressing with the pooled estimates is the problem of scalability, in particular, the interpretation of the constant parameter in the model, the edge count parameter. In the baseline case of estimating a density parameters using a single network, as pointed out in \cite{Krivitsky2011}, extrapolating or comparing those estimates in the context of a network with a different size may be a bit complicated in the sense that, if left as is, a fixed density parameter assumes a constant change in the average degree of the network, which may not be realistic in some scenarios, as instead it may be more natural to think that the degree holds constant. Still, the cases pointed out by \cite{Krivitsky2011} discuss situations in which the sizes of the networks range from a few dozens to a couple of thousands, which will not be the case here.
 
+The simulations and model fitting were conducted using the R package \texttt{ergmito} which has been developed to implement the methods described in this work.
 
+\section{Illustration with simulated data: fivenets}
 
+Included in the R package \texttt{ergmito}, the \texttt{fivenets} dataset contains five networks of class \texttt{network} (from the R package of the same name), that were simulated using the function \texttt{new\_rergmito} included in \texttt{ergmito}, in particular:
 
-What is small? It depends, in the case of simple networks--undirected graphs--the support has has $2^{n(n-1)/2}$ networks, which means that for a graph of size 7 there are 2,097,152 possible networks to be considered in the model. From the practical point of view, this actually is more simple as the exhaustive enumeration of graphs has to be done only once, in particular, let $\mathcal{W}(m)$ be the powerset of vector statistics associated with model $m$, $q(w)\equiv |\{y\in\mathcal{Y}: s(y,x) = w\}|$, then \eqref{eq:ergm} can be expressed as:
+\begin{itemize}
+    \item All the networks are of size 5
+    \item Every node in this network has a nodal attribute called \emph{female}, which was drawn from a binomial distribution.
+    \item Each network was drawn from an ERGM with parameters
+    edges = -2.0 and Homophily on gender = 2.0 (\texttt{nodematch("female")} as it would be included in the \texttt{ergm} R package).
+\end{itemize}
+
+\autoref{fivenets:coefficients} shows the estimation results of three different especifications of the model: (1) Homophily only, (2) Edgecount only, and (3) Full model (both parameters).
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l c c c }
+\hline
+ & Homophily only & Edgecount only & Full model \\
+\hline
+nodematch.female & $-0.12$  &             & $1.59^{*}$   \\
+                 & $(0.34)$ &             & $(0.64)$     \\
+edges            &          & $-0.69^{*}$ & $-1.70^{**}$ \\
+                 &          & $(0.27)$    & $(0.54)$     \\
+\hline
+AIC              & 85.06    & 78.38       & 73.34        \\
+BIC              & 87.15    & 80.48       & 77.53        \\
+Log Likelihood   & -41.53   & -38.19      & -34.67       \\
+Num. networks    & 5        & 5           & 5            \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$, $^{**}p<0.01$, $^*p<0.05$}}
+\end{tabular}
+\caption{Fitted ERGMitos using the fivenets dataset. As expected, the Full model (last column of the table) has overall a better fit of the data (higher LogLikelihood value), more over, the observed coefficients for both statistics are inline with the true parameters.}
+\label{fivenets:coefficients}
+\end{center}
+\end{table}
+
+Practitioners of ERGMs should be familiar with the goodness-of-fit diagnostic performed every time a model is fitted. In general, the most looked statistics are the distribution of shortest-path lengths, and .... In the case of ERGMitos, such parameter loses some relevance since, in general, the shortest-path lengths between any two nodes lies usually (or at least there is a high chance of) between 1 and 2 steps. \autoref{fig:fivenets-gof} shows the GOF statistics for the model parameters.
+
+An important advantage of the ERGMitos over ``regular'' ERGMs is that we can observe the surface of the log-likelihood over different combination of parameters in a rather straightforward way. This, together with the goodness-of-fit analysis should be a routine thing to be done after every ERGMito fit. \autoref{fig:fivenets-loglike} shows the surface of the log-likelihood function around the solution.
+
+\begin{figure}
+    \centering
+    \caption{Goodness-of-fit in ERGMitos. In this case we are showing how do the observed sufficient statistics of each one of the 5 networks (x-axis) locate in the overall estimated distribution based on the fitted ERGMito. The gray lines in each box show the minimum and maximum value that the sufficient statistics can take in each one of the 5 networks, whereas the dotted lines provide a 90\% confidence interval. The dots are the observed statistics in each network.}
+    \includegraphics[width=.7\linewidth]{figures/fivenets_gof.pdf}
+    \label{fig:fivenets-gof}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \caption{Surface of the log-likelihood function of the pooled ERGMito model. Lighter colors represent higher values while darker ones represent lower values. The red dot corresponds to the location of the MLE estimate of the model.}
+    \includegraphics[width=.7\linewidth]{figures/fivenets_loglike.pdf}
+    \label{fig:fivenets-loglike}
+\end{figure}
 
 \section{Simulation study}
 
@@ -87,18 +150,28 @@ We simulated 100,000 samples, each one composed of an average of 30 networks.
 	\includegraphics[width=.9\linewidth]{power-02-various-sizes-3-5.pdf}
 \end{figure}
 
+\section{Discussion}
+
+\section{Acknowledgements}
+
+This material is based upon work support by, or in part by, the U.S. Army Research Laboratory and the U.S. Army Research Office under grant number W911NF-15-1-0577
+
+Computation for the work described in this paper was supported by the University of Southern California’s Center for High-Performance Computing (hpcc.usc.edu).
+
 \bibliographystyle{plain}
 \bibliography{bibliography.bib}
 
-
 \appendix
 
-\section{Gradient function}
+\section{MLE}
+
+In order to improve accuracy of the estimation process, we use both the log-likelihood function and its gradient to find the MLEs. In particular, in this iteration of the manuscript we are using the BFGS quasi-newtonian optimization algorithm as provided by the R package stats in the optim function. In the general case, whether we have one or more networks (pooled estimates), the gradient of the log-likelihood function can be calculated as follows:
 
 \begin{equation}
-\nabla l(\theta) = \transpose{\sufstats{\adjmat, \Indepvar}} - \frac{\transpose{Q}\left(\transpose{\adjmat} \circ \exp{Q \theta}\right)}{\kappa}
+\sum_{p}\nabla l_p(\theta) = \transpose{\sufstats{\adjmat_p, \Indepvar_p}} - \frac{\transpose{Q_p}\left(\transpose{W_p} \circ \exp{Q_p \theta}\right)}{\kappa_p}
 \end{equation}
 
+Where $\sufstats{\adjmat, \Indepvar}$ is a vector of observed sufficient statistics (usually called target statistics), $Q$ is a matrix of sufficient statistics, in particular, the isomorphic sufficient statistics associated with the model, and $W$ is a vector of frequency weights.
 
 
 \end{document}
