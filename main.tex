@@ -13,16 +13,32 @@
 \input{ergmitos-header.tex}
 
 \title{Exponential Random Graph models for Little Networks}
-\author{George G. Vega Yon \and Kayla de la Haye}
+\author{George G. Vega Yon\footnote{Corresponding author. email: \href{mailto:vegayon@usc.edu}{vegayon@usc.edu}} \and Kayla de la Haye}
 \date{January 2019}
 
 \begin{document}
 
 \maketitle
 
-To be submitted at https://arxiv.org/help/submit
 
 \section{Introduction}
+
+\autoref{fig:ergm-structs} shows some examples on structures (statistics) that can be used with ERGMs. The next section describes the model itself and shows details about the estimation process in the case of small networks.
+
+\def\fig1width{.45\linewidth}
+\begin{figure}[tb]
+\centering
+\begin{tabular}{m{.2\linewidth}<\centering m{.4\linewidth}<\raggedright}
+\toprule Representation & Description  \\ \midrule
+\includegraphics[width=\fig1width]{terms/mutual.pdf} & Mutual Ties (Reciprocity)\linebreak[4]$\sum_{i\neq j}y_{ij}y_{ji}$  \\
+\includegraphics[width=\fig1width]{terms/ttriad.pdf} & Transitive Triad (Balance)\linebreak[4]$\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}$  \\
+\includegraphics[width=\fig1width]{terms/homophily.pdf} & Homophily\linebreak[4]$\sum_{i\neq j}y_{ij}\mathbf{1}\left(x_i=x_j\right)$ \\
+\includegraphics[width=\fig1width]{terms/nodeicov.pdf} & Covariate Effect for Incoming Ties\linebreak[4]$\sum_{i\neq j}y_{ij}x_j$ \\
+\includegraphics[width=\fig1width]{terms/fourcycle.pdf} & Four Cycle\linebreak[4]$\sum_{i\neq j \neq k \neq l}y_{ij}y_{jk}y_{kl}y_{li}$  \\
+\bottomrule
+\end{tabular}
+\caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
+\end{figure}
 
 \section{Exponential-Family Random Graph Models}
 
@@ -39,24 +55,9 @@ Exponential-Family Random Graph Models (ERGMs), are certainly one of the most po
 
 \noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model which is usually assumed to include all directed graphs of the same size as $\adjmat$, that are directed, and do not include self-ties; in this particular case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. Such makes the exact calculation of $\normconst{}$, and hence of \eqref{eq:ergm} extremely complicated to calculate.
 
-\def\fig1width{.45\linewidth}
-\begin{figure}
-\centering
-\begin{tabular}{m{.2\linewidth}<\centering m{.4\linewidth}<\raggedright}
-\toprule Representation & Description  \\ \midrule
-\includegraphics[width=\fig1width]{terms/mutual.pdf} & Mutual Ties (Reciprocity)\linebreak[4]$\sum_{i\neq j}y_{ij}y_{ji}$  \\
-\includegraphics[width=\fig1width]{terms/ttriad.pdf} & Transitive Triad (Balance)\linebreak[4]$\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}$  \\
-\includegraphics[width=\fig1width]{terms/homophily.pdf} & Homophily\linebreak[4]$\sum_{i\neq j}y_{ij}\mathbf{1}\left(x_i=x_j\right)$ \\
-\includegraphics[width=\fig1width]{terms/nodeicov.pdf} & Covariate Effect for Incoming Ties\linebreak[4]$\sum_{i\neq j}y_{ij}x_j$ \\
-\includegraphics[width=\fig1width]{terms/fourcycle.pdf} & Four Cycle\linebreak[4]$\sum_{i\neq j \neq k \neq l}y_{ij}y_{jk}y_{kl}y_{li}$  \\
-\bottomrule
-\end{tabular}
-\caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
-\end{figure}
+Ultimately, while mentioned several times throughout the literature \cite{Wasserman1996,Frank1986,Snijders2011}, the use of exponential random graph models for ``small networks'' (which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers) is not observed as often as in the case of ``larger'' networks, leave alone calculating the likelihood function using exhaustive enumeration (which we will refer as exact likelihood) instead of simulation-based estimation methods as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based estimation methods have not been developed with this in mind.\footnote{Perhaps because that, as put by \cite{Snijders2011}, small networks are considered to be ``uninteresting special cases''}
 
-Ultimately, while mentioned several times throughout the literature \cite{Wasserman1996,Frank1986,Snijders2011}, the use of exponential random graph models for "small networks" (which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers) is not observed as often as in the case of "larger" networks, leave alone calculating the likelihood function using exhaustive enumeration (which we will refer as exact likelihood) instead of simulation-based estimation methods as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based estimation methods have not been developed with this in mind.\footnote{Perhaps because that, as put by \cite{Snijders2011}, small networks are considered to be "uninteresting special cases"}
-
-The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the "off diagonal" components to zero (structural zeros). The problem with this approach lies on the fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable. In this paper, we present a revisit of the Exponential Random Graph Models for small networks, the estimation process that can be used in such case, and some results from an extensive simulation study that we conducted.
+The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the ``off diagonal'' components to zero (structural zeros). The problem with this approach lies on the fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable. In this paper, we present a revisit of the Exponential Random Graph Models for small networks, the estimation process that can be used in such case, and some results from an extensive simulation study that we conducted.
 
 \section{ERGM{\it{}itos}: ERGMs for small networks}
 
@@ -81,54 +82,37 @@ The simulations and model fitting were conducted using the R package \texttt{erg
 
 \section{Illustration with simulated data: fivenets}
 
+\subsection{Data-generating-process and model fitting}
+
 In what follows we will work with a toy dataset generated using the data-generating-process of ERGMitos. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}. The dataset contains five simulated networks, each using the following model:
 
 \begin{multline*}
 \Prcond{\Adjmat = \adjmat}{\Indepvar_{\mbox{gender}}, \params} = \\
 \frac{ %
     \exp{\params_{edges}\left(\sum_{i,j} \adjmat_{ij}\right) + %
-    \params_{homophily}\left(\sum_{i,j} \adjmat_{i}\isone{\Indepvar_{gender, i} = \Indepvar_{gender, j}}}\right) %
+    \params_{homophily}\left(\sum_{i,j} \adjmat_{ij}\isone{\Indepvar_{gender, i} = \Indepvar_{gender, j}}}\right) %
     }{%
     \normconst{}
     }
 \end{multline*}
 
-Using the previous equation, we draw five networks of size five. In the case of the ``homophily'', parameter which is operationalized as the number of ties in which ego and alter have the same gender, before drawing the networks, we randomly generated the gender parameter to each vertex as a Bernoulli with parameter 0.5. \autoref{fig:fivenets} shows the five networks.
+\noindent where $\params_{edges} = -2.0$ and $\params_{homophily} = 2$. Using the previous equation, we draw five networks of size five. In the case of the ``homophily'', parameter which is operationalized as the number of ties in which ego and alter have the same gender, before drawing the networks, we randomly generated the gender parameter to each vertex as a Bernoulli with parameter 0.5. \autoref{fig:fivenets} shows the five networks.
 
-\begin{figure}
+\begin{figure}[tb]
     \centering
-    \includegraphics{}
-    \caption{\label{fig:fivenets}Caption}
+    \includegraphics[width=.6\linewidth]{figures/fivenets_graphs.pdf}
+    \caption{\label{fig:fivenets}Fivenets dataset. These graphs were randomly drawn from an ERGM distribution with parameters edgecount and homophily on gender equal to -2.0 and 2.0 respectively.}
     \label{fig:my_label}
 \end{figure}
 
 
-\autoref{fivenets:coefficients} shows the estimation results of three different especifications of the model: (1) Homophily only, (2) Edgecount only, and (3) Full model (both parameters).
+\autoref{fivenets:coefficients} shows the estimation results of three different specifications of the model: (1) Homophily only, (2) Edgecount ($edges$) only, and (3) Full model (both parameters). As it should, model (3) fits the best. The 
 
-\begin{table}
-\begin{center}
-\begin{tabular}{l c c c }
-\hline
- & Homophily only & Edgecount only & Full model \\
-\hline
-nodematch.female & $-0.12$  &             & $1.59^{*}$   \\
-                 & $(0.34)$ &             & $(0.64)$     \\
-edges            &          & $-0.69^{*}$ & $-1.70^{**}$ \\
-                 &          & $(0.27)$    & $(0.54)$     \\
-\hline
-AIC              & 85.06    & 78.38       & 73.34        \\
-BIC              & 87.15    & 80.48       & 77.53        \\
-Log Likelihood   & -41.53   & -38.19      & -34.67       \\
-Num. networks    & 5        & 5           & 5            \\
-\hline
-\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$, $^{**}p<0.01$, $^*p<0.05$}}
-\end{tabular}
-\caption{Fitted ERGMitos using the fivenets dataset. As expected, the Full model (last column of the table) has overall a better fit of the data (higher LogLikelihood value), more over, the observed coefficients for both statistics are inline with the true parameters.}
-\label{fivenets:coefficients}
-\end{center}
-\end{table}
+\input{}
 
-Practitioners of ERGMs should be familiar with the goodness-of-fit diagnostic performed every time a model is fitted. In general, the most looked statistics are the distribution of shortest-path lengths, and .... In the case of ERGMitos, such parameter loses some relevance since, in general, the shortest-path lengths between any two nodes lies usually (or at least there is a high chance of) between 1 and 2 steps. \autoref{fig:fivenets-gof} shows the GOF statistics for the model parameters.
+\subsection{Goodness-of-fit in \ergmitos}
+
+Practitioners of ERGMs should be familiar with the goodness-of-fit diagnostic performed every time one of these models is fitted. In general, the most scrutinized statistic--and yet harder to obtain a good fit--is the distribution of shortest-path lengths. In the case of ERGMitos such statistic loses some relevance since, in general, the shortest-path lengths between any two nodes lies usually (or at least there is a high chance of) between 1 and 2 steps. Instead, we look directly at the fitted parameters in the model as the bare-minimum as showed in \autoref{fig:fivenets-gof}. An important difference from what is commonly done is that, instead of looking at a boxplot, since we are actually able to enumerate the full support of the model, we present a 90\% confidence interval per-statistic per network, comparing the fitted model's distribution with the observed parameters. A thorough discussion about this part of the ERGMitos is presented at the end of this paper.
 
 An important advantage of the ERGMitos over ``regular'' ERGMs is that we can observe the surface of the log-likelihood over different combination of parameters in a rather straightforward way. This, together with the goodness-of-fit analysis should be a routine thing to be done after every ERGMito fit. \autoref{fig:fivenets-loglike} shows the surface of the log-likelihood function around the solution.
 
@@ -171,8 +155,12 @@ This material is based upon work support by, or in part by, the U.S. Army Resear
 
 Computation for the work described in this paper was supported by the University of Southern California’s Center for High-Performance Computing (hpcc.usc.edu).
 
+\clearpage
+
 \bibliographystyle{plain}
 \bibliography{bibliography.bib}
+
+\clearpage
 
 \appendix
 
