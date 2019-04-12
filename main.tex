@@ -81,14 +81,27 @@ The simulations and model fitting were conducted using the R package \texttt{erg
 
 \section{Illustration with simulated data: fivenets}
 
-Included in the R package \texttt{ergmito}, the \texttt{fivenets} dataset contains five networks of class \texttt{network} (from the R package of the same name), that were simulated using the function \texttt{new\_rergmito} included in \texttt{ergmito}, in particular:
+In what follows we will work with a toy dataset generated using the data-generating-process of ERGMitos. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}. The dataset contains five simulated networks, each using the following model:
 
-\begin{itemize}
-    \item All the networks are of size 5
-    \item Every node in this network has a nodal attribute called \emph{female}, which was drawn from a binomial distribution.
-    \item Each network was drawn from an ERGM with parameters
-    edges = -2.0 and Homophily on gender = 2.0 (\texttt{nodematch("female")} as it would be included in the \texttt{ergm} R package).
-\end{itemize}
+\begin{multline*}
+\Prcond{\Adjmat = \adjmat}{\Indepvar_{\mbox{gender}}, \params} = \\
+\frac{ %
+    \exp{\params_{edges}\left(\sum_{i,j} \adjmat_{ij}\right) + %
+    \params_{homophily}\left(\sum_{i,j} \adjmat_{i}\isone{\Indepvar_{gender, i} = \Indepvar_{gender, j}}}\right) %
+    }{%
+    \normconst{}
+    }
+\end{multline*}
+
+Using the previous equation, we draw five networks of size five. In the case of the ``homophily'', parameter which is operationalized as the number of ties in which ego and alter have the same gender, before drawing the networks, we randomly generated the gender parameter to each vertex as a Bernoulli with parameter 0.5. \autoref{fig:fivenets} shows the five networks.
+
+\begin{figure}
+    \centering
+    \includegraphics{}
+    \caption{\label{fig:fivenets}Caption}
+    \label{fig:my_label}
+\end{figure}
+
 
 \autoref{fivenets:coefficients} shows the estimation results of three different especifications of the model: (1) Homophily only, (2) Edgecount only, and (3) Full model (both parameters).
 
