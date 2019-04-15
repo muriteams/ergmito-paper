@@ -7,14 +7,14 @@
 \onehalfspacing
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
-\hypersetup{linkcolor=blue, allcolors=true}
+\hypersetup{allcolors=blue, colorlinks=true}
 \usepackage[utf8]{inputenc}
 % Notation
 \input{ergmitos-header.tex}
 
-\title{Exponential Random Graph models for Little Networks}
+\title{Exponential Random Graph models for Little Networks\footnote{The authors would like to thank Garry Robins, Carter Butts, Johan Koskinen, Noshir Contractor, and Andrew Salughter for their valuable contributions to this work. The usual disclaimer applies.}}
 \author{George G. Vega Yon\footnote{Corresponding author. email: \href{mailto:vegayon@usc.edu}{vegayon@usc.edu}} \and Kayla de la Haye}
-\date{January 2019}
+\date{Department of Preventive Medicine\\University of Southern California\\ April 2019}
 
 \begin{document}
 
@@ -23,7 +23,11 @@
 
 \section{Introduction}
 
-\autoref{fig:ergm-structs} shows some examples on structures (statistics) that can be used with ERGMs. The next section describes the model itself and shows details about the estimation process in the case of small networks.
+Statistical models for social networks have enabled researchers to study complex social phenomena that give rise to observed patterns of relationships among social actors, and to gain a rich understanding of the \textit{interdependent nature} of social ties and social actors \cite{Snijders2011,lusher2012exponential}. For example, this research has provided new insights into the role that attributes of social actors (e.g., their characteristics, beliefs, and decisions), and endogenous structural processes (e.g., social balance, and relationship reciprocity) play in shaping social networks in many different populations and social settings, and the influence that these social networks have, in turn, on individuals and groups. 
+
+Much of this research has focused on social networks within medium to large social groups: from a couple of dozen students in a classroom, or colleagues in an organization; to larger social networks within schools, villages, and (online and offline) communities. To date, these advances in statistical models for social networks have rarely been applied to the study of small networks, despite small network data in teams, families, and personal (ego-centric) networks being common in many fields that study social phenomena. The study of small networks often uses descriptive statistics that summarize the structural features of the network; for example, the density, degree distribution, or triad count. However, researchers in these fields are often interested in testing hypotheses about \textit{why} small, localized social structures, such as reciprocity and balance, emerge in these small groups. A key limitation to this work has been the availability of statistical models for networks that can adequately test these hypotheses using an approach that is suited to the dependencies inherent in network data. In this paper, we propose an approach for applying one of the most widely used statistical models for social networks--exponential random graph models, or ERGM--to small graphs, to enable novel and rich research on ``little networks''. 
+
+
 
 \def\fig1width{.45\linewidth}
 \begin{figure}[tb]
@@ -42,7 +46,7 @@
 
 \section{Exponential-Family Random Graph Models}
 
-Exponential-Family Random Graph Models (ERGMs), are certainly one of the most popular tools used by social scientists interested on understanding social networks \cite[and others]{Robins2007,Holland1981,Wasserman1996,Snijders2006}. In this family of models, an observed graph $\adjmat$, or more commonly put, its adjacency matrix representation, is characterized by a set of sufficient statistics, which we denote $\sufstats{}$, as follows:
+Exponential-Family Random Graph Models (ERGMs) are one of the most popular tools used by social scientists to understand social networks  \cite[and others]{Robins2007,Holland1981,Wasserman1996,Snijders2006}. In this family of models, an observed graph $\adjmat$, or more commonly put, its adjacency matrix representation, is characterized by a set of sufficient statistics, which we denote $\sufstats{}$, as follows:
 
 \begin{equation}
 \label{eq:ergm}
@@ -53,13 +57,15 @@ Exponential-Family Random Graph Models (ERGMs), are certainly one of the most po
   },\quad\forall \adjmat\in\ADJMAT
 \end{equation}
 
-\noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model which is usually assumed to include all directed graphs of the same size as $\adjmat$, that are directed, and do not include self-ties; in this particular case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. Such makes the exact calculation of $\normconst{}$, and hence of \eqref{eq:ergm} extremely complicated to calculate.
+\noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model which is usually assumed to include all directed graphs of the same size as $\adjmat$, that are directed, and do not include self-ties. In this case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. This makes the exact calculation of $\normconst{}$, and therfore of \eqref{eq:ergm}, extremely complicated to calculate. \autoref{fig:ergm-structs} shows some examples on structures (statistics) that can be used with ERGMs.
 
-Ultimately, while mentioned several times throughout the literature \cite{Wasserman1996,Frank1986,Snijders2011}, the use of exponential random graph models for ``small networks'' (which we will describe as those networks in which enumerating the entire support of the distribution is possible using modern computers) is not observed as often as in the case of ``larger'' networks, leave alone calculating the likelihood function using exhaustive enumeration (which we will refer as exact likelihood) instead of simulation-based estimation methods as done today in the most popular software packages used for estimating these models. One key aspect of this is the fact that simulation-based estimation methods have not been developed with this in mind.\footnote{Perhaps because that, as put by \cite{Snijders2011}, small networks are considered to be ``uninteresting special cases''}
+Modeling ``small networks'' is a topic mentioned several times in the literature on social network models  \cite{Wasserman1996,Frank1986,Snijders2011},  although much less frequently than studies of large networks, and applications of network models such as ERGMs to small networks is rare.\footnote{Perhaps because that, as put by \cite{Snijders2011}, small networks are considered to be ``uninteresting special cases''} Thus, ERGM methods have been developed to accommodate larger networks (although they do not scale well to ``very large'' networks of several thousand nodes or more). For example, rather than calculating the likelihood function using exhaustive enumeration (which we will refer as exact likelihood), the most popular software packages used for estimating these models apply simulation-based estimation methods.
 
-The infamous degeneracy problem \cite{Handcock2003} that users of this method encounter too often is more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only two nodes, in the scenario where such graph is directed and does not allow for self-ties, the chances of obtaining either a fully connected or a fully empty graph are exactly half. The problem, while less prevalent, is still observed more often compare to what we would see in in networks with more nodes, say 8 for example, and it hardly goes away as the sample size increases. In fact, the degeneracy problem has such high prevalence in small networks that most practitioners find it futile.\footnote{In some cases, researchers try to aggregate their data, if using multiple networks, such that to be able to obtain something similar to pooled estimates. In order to do so, practitioners stack multiple adjancency matrices as a single one building a block-diagonal dataset, explicitly modeling the networks as independent by fixing the ``off diagonal'' components to zero (structural zeros). The problem with this approach lies on the fact that the very set of constraints that are subscribed to the model make the sampling procedure complicated.} The good news, the degeneracy problem is not present in the cases in which likelihood function is trackable. In this paper, we present a revisit of the Exponential Random Graph Models for small networks, the estimation process that can be used in such case, and some results from an extensive simulation study that we conducted.
+As a consequence, the methods used to estimate ERGMs for large networks do not translate well to small network data (i.e., 10 or fewer nodes). The inference degeneracy problem \cite{Handcock2003} often encountered with these methods, even with large networks, is even more prevalent in the case of small networks. For example, if we are trying to estimate an ERGM in a network with only three nodes, in the scenario where the graph is directed and does not allow for self-ties, the chances of obtaining a graph with 1 or zero ties (emtpy or almost completely empty), or one with 5 or 6 ties (fully or almost fully connected) is about 20\% using a uniform sampler. The degeneracy problem is so common with small networks (e.g., 3 to 10 nodes) that practitioners typically cannot estimate ERGMs for small graphs. One work-around that is sometime attempted when multiple small networks are observed, is to aggregate the small networks into one large graph to obtain something similar to pooled estimates. Specifically, practitioners stack multiple adjacency matrices as a single matrix  building a block-diagonal data set, explicitly modeling the networks as independent by fixing the ``off diagonal'' components to 'impossible' (structural zeros). The problem with this approach is that the very set of constraints that are subscribed to the model make the sampling procedure complicated. 
 
-\section{ERGM{\it{}itos}: ERGMs for small networks}
+To overcome this issue, we leverage the fact that in the case of small networks the likelihood function is tractable, and thus, we can directly estimate model parameters without using Markov Chain Monte Carlo (MCMC) methods, avoiding the convergence issues associated with inference degeneracy \cite{Handcock2003}. In this paper, we revisit ERGMs for small networks, which we define as those networks in which enumerating the entire support of the distribution is possible using modern computers (i.e., networks of size 3 to 6 nodes). We propose an estimation process that can be used in this type of application, and present results from an extensive simulation study evaluating the feasibility and validity of this method.
+
+\section{\ergmitos{}: ERGMs for small networks}
 
 In modern computers, calculating the exact likelihood function of an exponential random graph model for a small network becomes computationally feasible. This has an important implication: the estimation process of the parameters of an ERGMs of a small networks can be done directly without having to use simulations like modern methods do when fitting this kind of models. This way, besides of obtaining a better solution (in general), if the MLEs exists, we avoid the degeneracy problem. It is important to notice that, while the degeneracy problem is not completely avoided, we are indeed reaching a better situation compared to what we would get if we were using MC-MLE estimation, for example. One result by \cite[p. 7]{Handcock2003}, "[i]f the model used to simulate the graphs is not close enough to produce realizations that cover the observed values of the statistics, the MC-MLE will not exist even in cases where the MLE does.", in other words, while the non-existence of MLE estimates implies the non-existence of MC-MLE estimates, the opposite is not true.
 
@@ -84,7 +90,7 @@ The simulations and model fitting were conducted using the R package \texttt{erg
 
 \subsection{Data-generating-process and model fitting}
 
-In what follows we will work with a toy dataset generated using the data-generating-process of ERGMitos. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}. The dataset contains five simulated networks, each using the following model:
+In what follows we will work with a toy data set generated using the data-generating-process of \ergmitos{}. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}\footnote{The R package is available to be downloaded at  \url{https://github.com/muriteams/ergmito}}. The dataset contains five simulated networks, each using the following model:
 
 \begin{multline*}
 \Prcond{\Adjmat = \adjmat}{\Indepvar_{\mbox{gender}}, \params} = \\
@@ -106,7 +112,7 @@ In what follows we will work with a toy dataset generated using the data-generat
 \end{figure}
 
 
-\autoref{fivenets:coefficients} shows the estimation results of three different specifications of the model: (1) Homophily only, (2) Edgecount ($edges$) only, and (3) Full model (both parameters). As it should, model (3) fits the best. The 
+\autoref{table:coefficients} shows the estimation results of three different specifications of the model: (1) Homophily only, (2) Edgecount ($edges$) only, and (3) Full model (both parameters). As expected, model (3) as the best overall fit to the data. The 
 
 \input{fivenets_fit.tex}
 
@@ -116,38 +122,62 @@ Practitioners of ERGMs should be familiar with the goodness-of-fit diagnostic pe
 
 An important advantage of the ERGMitos over ``regular'' ERGMs is that we can observe the surface of the log-likelihood over different combination of parameters in a rather straightforward way. This, together with the goodness-of-fit analysis should be a routine thing to be done after every ERGMito fit. \autoref{fig:fivenets-loglike} shows the surface of the log-likelihood function around the solution.
 
-\begin{figure}
+\begin{figure}[tb]
     \centering
     \caption{Goodness-of-fit in ERGMitos. In this case we are showing how do the observed sufficient statistics of each one of the 5 networks (x-axis) locate in the overall estimated distribution based on the fitted ERGMito. The gray lines in each box show the minimum and maximum value that the sufficient statistics can take in each one of the 5 networks, whereas the dotted lines provide a 90\% confidence interval. The dots are the observed statistics in each network.}
     \includegraphics[width=.7\linewidth]{figures/fivenets_gof.pdf}
     \label{fig:fivenets-gof}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[tb]
     \centering
     \caption{Surface of the log-likelihood function of the pooled ERGMito model. Lighter colors represent higher values while darker ones represent lower values. The red dot corresponds to the location of the MLE estimate of the model.}
     \includegraphics[width=.7\linewidth]{figures/fivenets_loglike.pdf}
     \label{fig:fivenets-loglike}
 \end{figure}
 
+\pagebreak
 \section{Simulation study}
 
-We conducted a simulation study to explore the properties of MLE for small networks. To generate each sample of teams:
+\subsection{Sampling groups of small networks}
 
-1. Draw the **population parameters** from a piece-wise Uniform with values in $[-4, -.1]\cup[.1, 4]$
+We conducted a simulation study to explore the properties of MLE for small networks. Using the \texttt{ergmito} R package, we generated 100,000 samples of groups of small networks, each one with an average of 30 networks, which accounts to approximately 3 million small networks drawn from an ERGM distributions. In particular, to generate each one of the 100,000 samples we did the following:
 
-2. We will draw groups of sizes 3 to 5. The number of networks per group size are drawn from a Poisson distribution with parameter 10 (hence, an expected size of 30 networks per sample).
+\begin{enumerate}
 
-3. Use the drawn parameters and group sizes to generate random graphs using an ERGM data generating process.
+\item Draw two numbers from a piece-wise Uniform with values in $[-4, -.1]\cup[.1, 4]$. These two correspond to the parameters \textbf{edgecount} ($\params_{edges}$) and number of \textbf{mutual ties} ($\params_{mutuality}$) for the sufficient statistics.
 
-We simulated 100,000 samples, each one composed of an average of 30 networks.
+\item The number of networks included in the sample was obtained from 3 Poisson distributions with the parameter mean equal to 10, in particular, each one of those specified how many networks of sizes 3 ($n_3$), 4 ($n_4$), and 5 ($n_5$) would be generated. This implies that on average each sample has ten networks of each size, this is, a total of 30 networks per sample.
+
+\item Finally we draw $n_3$, $n_4$, and $n_5$ networks of sizes 3, 4, and 5 respectively from ERGM distributions with parameters $(\params_{edges}, \params_{mutuality})$ (so all 3 network sizes share the same set of population parameters). Again, we repeated 1 through 3 100,000 times.
+\end{enumerate}
+
+Unfortunately, given the small size of these networks, it is easy to simulate population parameters that fell within the almost-degenerate (and actually, degenerate) region of the parameter space. Because of this reason, the final analysis only considers 54,995 samples. The next section discusses the results.
+
+\subsection{Results}
+
+\autoref{fig:bias} shows the empirical bias.
+
+\autoref{fig:power} shows the empirical power level achieve for the estimator.
 
 \begin{figure}
 	\centering
+	\caption{\label{fig:power}Empirical power by sample size and model parameter.}
 	\includegraphics[width=.9\linewidth]{power-02-various-sizes-3-5.pdf}
 \end{figure}
 
+\begin{figure}
+    \centering
+    \caption{\label{fig:bias}Violin plots showing the empirical distribution of the bias per model parameter. In general we see that the parameter estimates' bias is centered around zero and in all but a few cases within the range [-1, 1]. Just like the figure on empirical power, this figure contains 54,995 samples.}
+    \includegraphics[width=.8\linewidth]{figures/bias-02-various-sizes-3-5.pdf}
+\end{figure}
+
+\pagebreak
 \section{Discussion}
+
+In this paper we have revisit the Exponential Family Random Graph Models for the case of small networks. Overall overlooked in estimation methods, ERGMs for small networks, or \ergmitos{} as we call them here, have the nice feature that, as a difference from other cases, can be estimated using Maximum Likelihood Estimation directly without having to recur to estimation via MCMC methods; this provides several benefits, mainly: (1) we avoid, if not completely, partially the model near-degeneracy problems that affect the aforementioned methods; (2) given the natural prevalence of samples of small networks like multiple families, small teams, or ego networks, pooling estimates come natural to the small networks setting, and indeed, we are able to estimate such models easily, all this improving accuracy and efficiency without losing anything.
+
+There are still some unanswered questions regarding how to analyze \ergmitos{}. One of particular importance is how to evaluate goodness-of-fit. What are the statistics that we should look at, and what are the GOF statistics that are reasonable to expected in a model to consider it a ``good fit'' are questions that we need to keep thinking of. One point in favor is the fact that, as a difference from ``regular'' ERGMs, \ergmitos{} provide an rather simple way of conducting simulation studies, hence, for future work we should focus on answering these and other questions with it.
 
 \section{Acknowledgements}
 
