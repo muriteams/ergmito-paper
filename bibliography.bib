@@ -24,15 +24,6 @@ Networks},
     url = {https://CRAN.R-project.org/package=sna},
   }
 
-@Manual{R,
-    title = {R: A Language and Environment for Statistical Computing},
-    author = {{R Core Team}},
-    organization = {R Foundation for Statistical Computing},
-    address = {Vienna, Austria},
-    year = {2019},
-    url = {https://www.R-project.org/},
-  }
-
 @Manual{vegayon2019,
     title = {sluRm: A lightweight wrapper for HPC with Slurm},
     author = {George {Vega Yon}},
@@ -40,6 +31,26 @@ Networks},
     year = {2019},
     note = {R package version 0.0.9000}
     
+  }
+
+@Book{Wickham2016,
+    author = {Hadley Wickham},
+    title = {ggplot2: Elegant Graphics for Data Analysis},
+    publisher = {Springer-Verlag New York},
+    year = {2016},
+    isbn = {978-3-319-24277-4},
+    url = {http://ggplot2.org},
+  }
+  
+@Article{Leifeld2013,
+    title = {{texreg}: Conversion of Statistical Model Output in {R} to {\LaTeX} and {HTML} Tables},
+    author = {Philip Leifeld},
+    journal = {Journal of Statistical Software},
+    year = {2013},
+    volume = {55},
+    number = {8},
+    pages = {1--24},
+    url = {http://www.jstatsoft.org/v55/i08/},
   }
 
 @Article{hunter2008,
@@ -301,4 +312,32 @@ year = {1981}
   url={https://books.google.com/books?id=ggQhAwAAQBAJ},
   year={2012},
   publisher={Cambridge University Press}
+}
+
+@article{Schweinberger2015,
+abstract = {Dependent phenomena, such as relational, spatial and temporal phenomena, tend to be characterized by local dependence in the sense that units which are close in a well-defined sense are dependent. In contrast with spatial and temporal phenomena, though, relational phenomena tend to lack a natural neighbourhood structure in the sense that it is unknown which units are close and thus dependent. Owing to the challenge of characterizing local dependence and constructing random graph models with local dependence, many conventional exponential family random graph models induce strong dependence and are not amenable to statistical inference. We take first steps to characterize local dependence in random graph models, inspired by the notion of finite neighbourhoods in spatial statistics and M-dependence in time series, and we show that local dependence endows random graph models with desirable properties which make them amenable to statistical inference. We show that random graph models with local dependence satisfy a natural domain consistency condition which every model should satisfy, but conventional exponential family random graph models do not satisfy. In addition, we establish a central limit theorem for random graph models with local dependence, which suggests that random graph models with local dependence are amenable to statistical inference. We discuss how random graph models with local dependence can be constructed by exploiting either observed or unobserved neighbourhood structure. In the absence of observed neighbourhood structure, we take a Bayesian view and express the uncertainty about the neighbourhood structure by specifying a prior on a set of suitable neighbourhood structures. We present simulation results and applications to two real world networks with 'ground truth'.},
+author = {Schweinberger, Michael and Handcock, Mark S.},
+doi = {10.1111/rssb.12081},
+issn = {13697412},
+journal = {Journal of the Royal Statistical Society: Series B (Statistical Methodology)},
+keywords = {Exponential families,Local dependence,M-dependence,Model degeneracy,Social networks,Weak dependence},
+month = {jun},
+number = {3},
+pages = {647--676},
+title = {{Local dependence in random graph models: characterization, properties and statistical inference}},
+url = {http://doi.wiley.com/10.1111/rssb.12081},
+volume = {77},
+year = {2015}
+}
+
+@Article{Eddelbuettel2011,
+  title = {{Rcpp}: Seamless {R} and {C++} Integration},
+  author = {Dirk Eddelbuettel and Romain Fran\c{c}ois},
+  journal = {Journal of Statistical Software},
+  year = {2011},
+  volume = {40},
+  number = {8},
+  pages = {1--18},
+  url = {http://www.jstatsoft.org/v40/i08/},
+  doi = {10.18637/jss.v040.i08},
 }
