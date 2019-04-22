@@ -12,7 +12,9 @@
 % Notation
 \input{ergmitos-header.tex}
 
-\title{Exponential Random Graph models for Little Networks\footnote{The authors would like to thank Garry Robins, Carter Butts, Johan Koskinen, Noshir Contractor, and Andrew Slaughter for their valuable contributions to this work. The usual disclaimer applies.}}
+\usepackage{textcomp} % FOR USING THE COPYRIGHT SYMBOL
+
+\title{Exponential Random Graph models for Little Networks\footnote{The authors would like to thank Garry Robins, Carter Butts, Johan Koskinen, Noshir Contractor, and Andrew Slaughter for their valuable contributions to this work. The usual disclaimer applies.\textcopyright{} 2019. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.}}
 \author{George G. Vega Yon\footnote{Corresponding author. email: \href{mailto:vegayon@usc.edu}{vegayon@usc.edu}} \and Kayla de la Haye}
 \date{Department of Preventive Medicine\\University of Southern California\\ April 2019}
 
@@ -34,11 +36,11 @@ Much of this research has focused on social networks within medium to large soci
 \centering
 \begin{tabular}{m{.2\linewidth}<\centering m{.4\linewidth}<\raggedright}
 \toprule Representation & Description  \\ \midrule
-\includegraphics[width=\fig1width]{terms/mutual.pdf} & Mutual Ties (Reciprocity)\linebreak[4]$\sum_{i\neq j}y_{ij}y_{ji}$  \\
-\includegraphics[width=\fig1width]{terms/ttriad.pdf} & Transitive Triad (Balance)\linebreak[4]$\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}$  \\
-\includegraphics[width=\fig1width]{terms/homophily.pdf} & Homophily\linebreak[4]$\sum_{i\neq j}y_{ij}\mathbf{1}\left(x_i=x_j\right)$ \\
-\includegraphics[width=\fig1width]{terms/nodeicov.pdf} & Covariate Effect for Incoming Ties\linebreak[4]$\sum_{i\neq j}y_{ij}x_j$ \\
-\includegraphics[width=\fig1width]{terms/fourcycle.pdf} & Four Cycle\linebreak[4]$\sum_{i\neq j \neq k \neq l}y_{ij}y_{jk}y_{kl}y_{li}$  \\
+\includegraphics[width=\fig1width]{mutual.pdf} & Mutual Ties (Reciprocity)\linebreak[4]$\sum_{i\neq j}y_{ij}y_{ji}$  \\
+\includegraphics[width=\fig1width]{ttriad.pdf} & Transitive Triad (Balance)\linebreak[4]$\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}$  \\
+\includegraphics[width=\fig1width]{homophily.pdf} & Homophily\linebreak[4]$\sum_{i\neq j}y_{ij}\mathbf{1}\left(x_i=x_j\right)$ \\
+\includegraphics[width=\fig1width]{nodeicov.pdf} & Covariate Effect for Incoming Ties\linebreak[4]$\sum_{i\neq j}y_{ij}x_j$ \\
+\includegraphics[width=\fig1width]{fourcycle.pdf} & Four Cycle\linebreak[4]$\sum_{i\neq j \neq k \neq l}y_{ij}y_{jk}y_{kl}y_{li}$  \\
 \bottomrule
 \end{tabular}
 \caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
