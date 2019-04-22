@@ -108,7 +108,7 @@ In the following section we work with a simulated data set that was created usin
 
 \begin{figure}[tb]
     \centering
-    \includegraphics[width=.6\linewidth]{figures/fivenets_graphs.pdf}
+    \includegraphics[width=.6\linewidth]{fivenets_graphs.pdf}
     \caption{\label{fig:fivenets}Fivenets data set. These graphs were randomly drawn from an ERGM distribution with two parameters: number of edges and gender homophily, with parameters equal to -2.0 and 2.0 respectively.}
     \label{fig:my_label}
 \end{figure}
@@ -124,7 +124,7 @@ Researchers that apply ERGMs should be familiar with the goodness-of-fit (GOF) d
 \begin{figure}[tb]
     \centering
     \caption{Goodness-of-fit in \ergmitos{}. In this case we are showing how do the observed sufficient statistics of each one of the 5 networks (x-axis) locate in the overall estimated distribution based on the fitted \ergmito{}. The gray lines in each box show the minimum and maximum value that the sufficient statistics can take in each one of the 5 networks, whereas the dotted lines provide a 90\% confidence interval. The dots are the observed statistics in each network.}
-    \includegraphics[width=.7\linewidth]{figures/fivenets_gof.pdf}
+    \includegraphics[width=.7\linewidth]{fivenets_gof.pdf}
     \label{fig:fivenets-gof}
 \end{figure}
 
@@ -133,7 +133,7 @@ An important advantage of the \ergmitos{} over ``regular'' ERGMs is that we can 
 \begin{figure}[tb]
     \centering
     \caption{Surface of the log-likelihood function of the pooled \ergmito{} model. Lighter colors represent higher values while darker ones represent lower values. The red dot corresponds to the location of the MLE estimate of the model.}
-    \includegraphics[width=.7\linewidth]{figures/fivenets_loglike.pdf}
+    \includegraphics[width=.7\linewidth]{fivenets_loglike.pdf}
     \label{fig:fivenets-loglike}
 \end{figure}
 
@@ -174,7 +174,7 @@ It is interesting to notice that in the case of effect sizes of magnitude [1.0, 
 \begin{figure}
     \centering
     \caption{\label{fig:bias}Violin plots showing the empirical distribution of the bias per model parameter. In general we see that the parameter estimates' bias is centered around zero and in all but a few cases within the range [-1, 1]. Just like the figure on empirical power, this figure contains 54,995 samples.}
-    \includegraphics[width=.8\linewidth]{figures/bias-02-various-sizes-3-5.pdf}
+    \includegraphics[width=.8\linewidth]{bias-02-various-sizes-3-5.pdf}
 \end{figure}
 
 The code used to reproduce this entire section can be found at \url{https://github.com/muriteams/ergmito-simulations}.
