@@ -134,7 +134,7 @@ In the following section we work with a simulated data set that was created usin
 
 Using the \texttt{ergmito} R package, we fit three different models to the data\footnote{Some details regarding the computational aspects of the model fitting process are provided in \ref{appendix:mle}.}: (1) a Bernoulli graph, which is a model that only includes the ``edges'' parameter, (2) a model with ``gender homophily'' as its only parameter, and finally (3) a model including both ``edges'' and ``gender homophily'', this is, the correct specification of the model. \autoref{table:coefficients} shows the estimation results of the three different specifications of the model and as expected, model (3) has the best overall fit to the data. Furthermore, since all three models were fitted using MLE, we can compare the edgecount and homophily models with the full model using Likelihood Ratio tests \cite{Zeileis2002}. The \textit{goodness of fit} of this model is evaluated in the following section.
 
-\input{fivenets_fit.tex}
+\input{figures/fivenets_fit.tex}
 
 
 \subsection{Goodness-of-fit in \ergmitos}
