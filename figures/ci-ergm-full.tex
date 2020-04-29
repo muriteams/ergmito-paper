@@ -1,0 +1,38 @@
+
+\begin{table}[tb]
+\centering
+\small
+\begin{tabular}{l c c c c c c }
+\toprule
+ & (1) & (2) & (3) & (4) & (5) & (4b) \\
+\midrule
+edges                     & $-0.52^{**}$  & $-0.54^{**}$  & $-0.56^{**}$  & $-0.72^{***}$ & $-0.48^{*}$   & $-0.72^{***}$ \\
+                          & $(0.17)$      & $(0.18)$      & $(0.19)$      & $(0.19)$      & $(0.19)$      & $(0.17)$      \\
+ttriple                   & $0.36^{***}$  & $0.37^{***}$  & $0.38^{***}$  & $0.36^{***}$  & $0.36^{***}$  & $0.36^{***}$  \\
+                          & $(0.06)$      & $(0.06)$      & $(0.06)$      & $(0.06)$      & $(0.06)$      & $(0.05)$      \\
+nodematch.Female          & $-0.03$       & $-0.20$       & $0.17$        & $-0.12$       & $-0.01$       & $-0.12$       \\
+                          & $(0.20)$      & $(0.46)$      & $(0.44)$      & $(0.20)$      & $(0.20)$      & $(0.21)$      \\
+$\text{edges} \times \isone{n = 5}$       & $-0.53^{***}$ & $-0.52^{***}$ & $-0.50^{***}$ & $-0.53^{***}$ & $-0.53^{***}$ & $-0.53^{***}$ \\
+                          & $(0.12)$      & $(0.13)$      & $(0.13)$      & $(0.13)$      & $(0.12)$      & $(0.13)$      \\
+$(\text{nodematch.Female})^{1/2}$ &               & $0.54$        &               &               &               &               \\
+                          &               & $(1.32)$      &               &               &               &               \\
+$(\text{nodematch.Female})^2$   &               &               & $-0.03$       &               &               &               \\
+                          &               &               & $(0.06)$      &               &               &               \\
+nodeocov.Female           &               &               &               & $0.46^{*}$    &               & $0.46^{**}$   \\
+                          &               &               &               & $(0.18)$      &               & $(0.18)$      \\
+nodeicov.Female           &               &               &               &               & $-0.08$       &               \\
+                          &               &               &               &               & $(0.18)$      &               \\
+\midrule
+AIC                       & 639.26        & 641.08        & 640.97        & 634.68        & 641.07        & 634.68        \\
+BIC                       & 655.99        & 661.99        & 661.88        & 655.59        & 661.98        & 655.59        \\
+Log Likelihood            & -315.63       & -315.54       & -315.49       & -312.34       & -315.53       & -312.34       \\
+Num. networks             & 31            & 31            & 31            & 31            & 31            & 31            \\
+Time (seconds)            & 2.84          & 2.39          & 2.40          & 5.27          & 5.22          & 86.35         \\
+N replicates              &               &               &               &               &               & 1000          \\
+N Used replicates         &               &               &               &               &               & 1000          \\
+\bottomrule
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$, $^{**}p<0.01$, $^*p<0.05$}}
+\end{tabular}
+\caption{Testing for gender homopholy. Models (1) through (3) include either an interaction term or a transformation of the term nodematch("Female"). Models (4) and (5) include sender and receiver effects, while model (4b) is a bootstrapped version of model (4).}
+\label{tab:ci-ergm-full}
+\end{table}

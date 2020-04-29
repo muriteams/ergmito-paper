@@ -1,16 +1,26 @@
-\documentclass[review]{elsarticle}
+ \documentclass[review, nonatbib,doubleblind]{elsarticle/elsarticle}
+%\documentclass[nonatbib]{elsarticle/elsarticle}
+
+\author[1]{George G. Vega Yon\corref{cor1}}
+\ead{vegayon@usc.edu}
+\author[2]{Andrew Slaughter}
+\ead{andrew.j.slaughter.civ@mail.mil}
+\author[1]{Kayla de la Haye}
+\ead{delahaye@usc.edu}
+
+\cortext[cor1]{Corresponding author}
+\address[1]{Department of Preventive Medicine, University of Southern California, USA}
+\address[2]{US Army Research Institute for the Behavioral and Social Sciences, USA}
+
 
 \usepackage{amsmath,amssymb}
 \usepackage{tabularx,booktabs}
 \usepackage{graphicx,multicol}
 
-% \usepackage{setspace}
-% \onehalfspacing
-% \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \hypersetup{allcolors=blue, colorlinks=true}
 \usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+
 % Notation
 \input{ergmitos-header.tex}
 
@@ -33,18 +43,21 @@
 % https://www.ncbi.nlm.nih.gov/pubmed/22844170
 % Concept: ERGM consistently underestimates the variance of the model.
 
-\title{Exponential Random Graph models for Little Networks} %\footnote{The authors would like to thank Garry Robins, Carter Butts, Johan Koskinen, and Noshir Contractor for their valuable contributions to this work. The usual disclaimer applies.\textcopyright{} 2019. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.}}
+\title{Exponential Random Graph models for Little Networks\tnoteref{t1}}% \textcopyright{} 2019. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.}}
+
+\tnotetext[t1]{The authors would like to thank Garry Robins, Carter Butts, Johan Koskinen, and Noshir Contractor for their valuable contributions to this work. Authors Contact information: \email{vegayon@usc.edu}, \email{andrew.j.slaughter.civ@mail.mil}, \email{delahaye@usc.edu}.}
 
 
-%\input{authorinfo.tex}
-\author{}
 
-\date{July 2019}
+% \date{December 1st, 2019}
+\date{January, 2020}
+
+\hypersetup{pdfauthor=The Avengers and Fantastic four}
 
 \begin{document}
 
 \begin{abstract}
-    Statistical models for social networks have enabled researchers to study complex social phenomena that give rise to observed patterns of relationships among social actors and to gain a rich understanding of the interdependent nature of social ties and actors. Much of this research has focused on social networks within medium to large social groups: from a couple of dozen students in a classroom, or colleagues in an organization; to larger social networks within schools, villages, and (online and offline) communities. To date, these advances in statistical models for social networks, and in particular, of Exponential-Family Random Graph Models (ERGMS), have rarely been applied to the study of small networks, despite small network data in teams, families, and personal (ego-centric) networks being common in many social science fields. In this paper, we revisit the estimation of ERGMs for small networks and propose using exhaustive enumeration when possible. Using a large simulation study and assess the properties of the MLE estimator of ERGMs and argue in favor of the benefits that direct MLE estimation has over approximate methods.
+    Statistical models for social networks have enabled researchers to study complex social phenomena that give rise to observed patterns of relationships among social actors and to gain a rich understanding of the interdependent nature of social ties and actors. Much of this research has focused on social networks within medium to large social groups. To date, these advances in statistical models for social networks, and in particular, of Exponential-Family Random Graph Models (ERGMS), have rarely been applied to the study of small networks, despite small network data in teams, families, and personal networks being common in many fields. In this paper, we revisit the estimation of ERGMs for small networks and propose using exhaustive enumeration when possible. We developed an R package that implements the estimation of pooled ERGMs for small networks using Maximum Likelihood Estimation (MLE), called ``ergmito''. Based on the results of an extensive simulation study to assess the properties of the MLE estimator, we conclude that there are several benefits of direct MLE estimation compared to approximate methods and that this creates opportunities for valuable methodological innovations that can be applied to modeling social networks with ERGMs.
 \end{abstract}
 
 \begin{keyword}
@@ -53,12 +66,18 @@ exponential random graph models\sep small networks\sep exact statistics \sep sim
 
 \maketitle
 
+% \section{Acknowledgement}
+% 
+% This material is based upon work support by, or in part by, the U.S. Army Research Laboratory and the U.S. Army Research Office under grant number W911NF-15-1-0577. The views, opinions, and/or findings contained in this paper are those of the authors and shall not be construed as an official Department of the Army position, policy, or decision, unless so designated by other documents.
+% 
+% Computation for the work described in this paper was supported by the University of Southern California’s Center for High-Performance Computing (hpcc.usc.edu).
 
+% \clearpage
 \section{Introduction}
 
 Statistical models for social networks have enabled researchers to study complex social phenomena that give rise to observed patterns of relationships among social actors, and to gain a rich understanding of the \textit{interdependent} nature of social ties and social actors \cite{Snijders2011,lusher2012exponential}. For example, this research has provided new insights into the role that the attributes of social actors (e.g., their characteristics, beliefs, and decisions), and endogenous structural processes (e.g., social balance, and relationship reciprocity) play in shaping social networks across different populations and social settings, and how  these social networks, in turn, influence individuals and groups. 
 
-Much of this research has focused on social networks within medium to large social groups: networks ranging from dozens or hundreds of members (e.g., classrooms and organizations) to millions (e.g., online social networks). However, modern advances in statistical models for social networks have rarely been applied to the study of small networks, despite small network data from teams, families, and personal (ego-centric) networks being common in many fields that study social phenomena \cite{HENTTONEN201074, CarterDR2015, bott2001family,crossley2015social}. The study of small networks often uses descriptive statistics that summarize basic structural features of the network; for example, the density, degree distribution, or triad count. However, researchers in these fields are often interested in testing hypotheses about \textit{why} localized social structures, such as reciprocity, balance, and homophily, emerge in these small groups. A key limitation to such work has been the availability of statistical models for networks that can flexibly test and control for the kind of dependencies inherent to network data. In this paper, we propose an approach for applying one of the most widely used statistical models for social networks--exponential random graph models, or ERGMs--to small graphs, to better enable new and rich research on ``little networks''. 
+Much of this research has focused on social networks within medium to large social groups: networks ranging from dozens or hundreds of members (e.g., classrooms and organizations) to millions (e.g., online social networks). However, modern advances in statistical models for social networks have rarely been applied to the study of small networks, despite small network data from teams, families, and personal (ego-centric) networks being common in many fields that study social phenomena \cite{HENTTONEN201074, CarterDR2015, bott2001family,crossley2015social}. The study of small networks often uses descriptive statistics that summarize basic structural features of the network; for example, the density, degree distribution, or triad count. However, researchers in these fields are often interested in testing hypotheses about \textit{why} localized social structures, such as reciprocity, balance, and homophily, emerge in these small groups. A key limitation to such work has been the availability of statistical models for networks that can flexibly test and control for the kind of dependencies inherent to network data. In this paper, we propose an approach for applying one of the most widely used statistical models for social networks--exponential random graph models, or ERGMs--to small graphs, to enable new research on ``little networks''. 
 
 \section{Exponential-Family Random Graph Models}
 
@@ -73,7 +92,7 @@ Exponential-family random graph models (ERGMs) are one of the most popular tools
   },\quad\forall \adjmat\in\ADJMAT
 \end{equation}
 
-\noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model which is usually assumed to include all graphs of the same type (e.g., directed or undirected)and size, and do not include self-ties. In the directed graph case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. This makes the exact calculation of $\normconst{}$, and therefore of \eqref{eq:ergm},  computationally expensive. A sophisticated array of parameters can be specified for ERGMs that reflect social and structural process of interest to social scientists, such as social closure, connectivity, and other affiliation preferences.  \autoref{fig:ergm-structs} shows some examples of the structures (statistics) that can be estimated with ERGMs.
+\noindent Where $\normconst{} = \sum_{\adjmat\in\ADJMAT}\exp{\transpose{\theta}\sufstats{\adjmat, \Indepvar}}$ is the normalizing constant, and $\ADJMAT$ is the support of the model that is usually assumed to include all graphs of the same type (e.g., directed or undirected) and size, that do not include self-ties. In the directed graph case, the size of $\ADJMAT$ equals $2^{n(n-1)}$ possible graphs. This makes the exact calculation of $\normconst{}$, and therefore of \eqref{eq:ergm},  computationally expensive. A sophisticated array of parameters can be specified for ERGMs that reflect social and structural process of interest to social scientists, such as social closure, connectivity, and other affiliation preferences.  \autoref{fig:ergm-structs} shows some examples of the structures (statistics) that can be estimated with ERGMs.
 
 \def\fig1width{.45\linewidth}
 \begin{figure*}[tb]
@@ -90,21 +109,21 @@ Exponential-family random graph models (ERGMs) are one of the most popular tools
 \caption{\label{fig:ergm-structs}Besides of the common edge count statistic (number of ties in a graph), ERGMs allow measuring other more complex structures that can be captured as sufficient statistics. }
 \end{figure*}
 
-Although ``small networks'' is a topic mentioned several times in the literature on social network models  \cite{Wasserman1996,Frank1986,Snijders2011},  interest in larger social networks has dominated the field.\footnote{This is perhaps because, as put by \cite{Snijders2011}, small networks are considered to be ``uninteresting special cases''} Thus, ERGM methods have been developed to accommodate larger networks (although they do not scale well to ``very large'' networks of several thousand nodes or more). One example of this is the calculation of the likelihood function: rather than being calculated using exhaustive enumeration (which we will refer to as "exact likelihood"), the most popular software packages used for estimating these models apply simulation-based estimation methods. As a consequence, current methods used to estimate ERGMs for medium to large networks do not translate well to small network data (i.e., 6 or fewer nodes if directed), and applications of these statistical network models to small networks are rare.  
+Although ``small networks'' is a topic mentioned several times in the literature on social network models  \cite{Wasserman1996,Frank1986,Snijders2011},  interest in larger social networks has dominated the field.\footnote{This is perhaps because, as put by \cite{Snijders2011}, small networks are considered to be ``uninteresting special cases''} Thus, ERGM methods have been developed to accommodate larger networks (although it is only very recent developments that have begun to scale well to ``very large'' networks of several thousand nodes or more \cite{stivala2019exponential}). One example of this is the calculation of the likelihood function: rather than being calculated using exhaustive enumeration (which we will refer to as "exact likelihood"), the most popular software packages used for estimating these models apply simulation-based estimation methods. As a consequence, current methods used to estimate ERGMs for medium to large networks do not translate well to small network data (i.e., 6 or fewer nodes if directed), and applications of these statistical network models to small networks are rare.  
 
-One major technical and theoretical issue in ERGM estimation generally, which is exacerbated with small networks, is the problem of \textit{degeneracy}. Degenerate models occur when the observed graph statistics lie in a region on or near the boundary of the support, and can be stressed when estimation depends on Monte Carlo Integration \cite{Strauss1986,Handcock2003}. Small networks, which are more likely to be nearly empty or nearly full, have a smaller region of support, and are more likely to be on or near the boundary of that support. For example, if we are trying to estimate an ERGM in a network with only three nodes, in the scenario where the graph is directed and does not allow for self-ties, the chances of obtaining a graph with either one or zero ties (i.e., empty or almost completely empty), or a graph with five or six ties (i.e., fully or almost fully connected) is about 20\% using a uniform sampler.
+One major technical and theoretical issue in ERGM estimation generally, which is exacerbated with small networks, is the problem of \textit{non-existence of Maximum Likelihood Estimation (MLE)}. Non-existence of MLEs (or the convex-hull problem) occurs when the observed graph's statistics lie in a region on or near the boundary of the support \cite{Barndorff-Nielsen2014}, and can be stressed when estimation depends on Monte Carlo Integration \cite{Handcock2003}. Small networks, which are more likely to be nearly empty or nearly full, have a smaller region of support, and are more likely to be on or near the boundary of that support. For example, if we are trying to estimate an ERGM in a network with only three nodes, in the scenario where the graph is directed and does not allow for self-ties, the chances of obtaining a graph with either one or zero ties (i.e., empty or almost completely empty), or a graph with five or six ties (i.e., fully or almost fully connected) is about 20\% using a uniform sampler.
 
-Because researchers studying small networks often have observed \textit{samples} of small networks (e.g., multiple team, family, or personal/egocentric networks), a common work-around to the issue of model degeneracy is to combine the independent small networks into a single larger block-diagonal graph. Estimation then proceeds by assuming that ties between blocks are impossible (i.e., treated as structural zeros in estimation). The major problems with this approach are that it can be complicated to fit, and difficult to extend. For example, the same set of constraints (the structural zeros) that allows for the model to be fit can also make the estimation procedure more difficult, and increase the possibility of sampling problems during MCMC estimation. More importantly, however, the block-diagonal approach can be difficult to extend. 
+Because researchers studying small networks often have observed \textit{samples} of small networks (e.g., multiple team, family, or personal/egocentric networks), a common work-around to the issue of non-existence of MLE is to combine the independent small networks into a single larger block-diagonal graph. Estimation then proceeds by assuming that ties between blocks are impossible (i.e., treated as structural zeros in estimation). The major problems with this approach are that it can be complicated to fit, and difficult to extend. For example, the same set of constraints (the structural zeros) that allow for the model to be fit can also make the estimation procedure more difficult, and increase the possibility of sampling problems during MCMC estimation. More importantly, however, the block-diagonal approach can be difficult to extend. 
 
-A basic ``complete pooling'' model -- that assumes a common data generating process across all networks -- is straightforward to define using existing tools for ERGM estimation. However, relaxing that assumption to allow for variability across graphs (i.e., unpooled or partially-pooled models) can become problematic; this would typically require the creation of block-wise node membership attributes, and complex interaction terms involving subgraph statistics and node membership variables. Moreover, extending such a framework to not just allow for between-group variability, but to \textit{predict} it (for example, as a function of additional group-level variables), is not straightforward in such an approach.
+A basic ``complete pooling'' model -- that assumes a common data generating process across all networks -- is straightforward to define using existing tools for ERGM estimation. However, relaxing that assumption to allow for variability across graphs (i.e., unpooled or partially-pooled models) can be problematic; it would typically require the creation of block-wise node membership attributes, and complex interaction terms involving subgraph statistics and node membership variables. Moreover, extending this framework to not only  allow for between-group variability, but to explicitly  \textit{predict} it (for example, as a function of additional group-level variables), is not straightforward with this complete-pooling approach.
 
-To overcome the challenges described above for fitting ERGMs to small networks, we leverage the fact that in the case of small networks, the full likelihood function \textit{is} tractable. This allows the direct estimation of model parameters without using Markov Chain Monte Carlo (MCMC) or other approximate methods, avoiding some of the convergence issues associated with inference degeneracy \cite{Handcock2003}. It also opens up the possibility of making it much easier to combine ERGMs with other statistical techniques, opening the door for richer methods for modeling and understanding small-group structure and dynamics. In this paper, we describe how modern computational power allows for the complete specification of the likelihood for small graphs, and how this specification allows us to use the standard tools of maximum likelihood estimation (MLE), as opposed to approximate methods, including confidence intervals and likelihood ratio tests. We present examples using these techniques, provide some initial Monte Carlo results on bias, type I error rates, and power, and discuss future extensions these techniques make feasible.
+To overcome the challenges described above for fitting ERGMs to small networks, we leverage the fact that in the case of small networks, the full likelihood function \textit{is} tractable. This allows the direct estimation of model parameters without using Markov Chain Monte Carlo (MCMC) or other approximate methods, avoiding some of the convergence issues associated with the convex-hull problem \cite{Handcock2003}. It also makes it much easier to combine ERGMs with other statistical techniques, opening the door for many possibilities of richer methods to model and understanding small-group network structure and dynamics. In this paper, we describe how modern computational power allows for the complete specification of the likelihood for small graphs, and how this specification allows us to use the standard tools of MLE, as opposed to approximate methods, including confidence intervals and likelihood ratio tests. We present examples using these techniques; provide some initial Monte Carlo results on bias, type I error rates, and power; illustrate the flexibility of this method with an empirical application; and discuss future extensions these techniques make feasible.
 
 \section{\ergmitos{}: ERGMs for small networks}
 
-With modern computers, calculating the exact likelihood function of an ERGM for a small network becomes computationally feasible. This has an important implication: the process for estimating the parameters of an ERGM for small networks can be done directly. Many innovative techniques have been developed to handle models with intractable normalizing constants (e.g., MCMC-MLE, Bayesian techniques such as the exchange sampler, etc.), and often these techniques work quite well. Of course, no techniques are without tradeoffs; MCMC-MLE estimation can be very sensitive to starting values, and the quality of standard errors can depend on the availability of analytic gradients \cite{Park2018}. Bayesian techniques like the exchange sampler \cite{Moller2006} may be comparatively slow, which may be an issue when many networks are to be analyzed.
+With modern computers, calculating the exact likelihood function of an ERGM for a small network becomes computationally feasible. This has an important implication: the process for estimating the parameters of an ERGM for small networks can be done directly. Many innovative techniques have been developed to handle models with intractable normalizing constants (e.g., Markov Chain Monte Carlo [MCMC] based estimation methods, Bayesian techniques such as the exchange sampler, etc.), and often these techniques work quite well. Of course, no techniques are without tradeoffs; MCMC-based estimation can be very sensitive to starting values, and the quality of standard errors can depend on the availability of analytic gradients \cite{Park2018}. Bayesian techniques like the exchange sampler \cite{Moller2006} may be comparatively slow, which may be an issue when many networks are to be analyzed.
 
-Moreover, simulation-based methods may have particular susceptibilities to model degeneracy. As stated by \cite[p. 7]{Handcock2003}, "[i]f the model used to simulate the graphs is not close enough to produce realizations that cover the observed values of the statistics, the MC-MLE will not exist even in cases where the MLE does." For example, many common network models, such as triangle-based models, can lead to bimodal distributions of graph statistics that simulation-based methods have difficulty with, even when the MLE falls between the modes \cite{Hunteretal2012}. Therefore, even though the degeneracy issue is not completely avoided, a method based on exact (non-simulation) inference may not only provide a better solution (in general) by avoiding the additional uncertainty induced by simulations and approximations, but may help mitigate the degeneracy issue in cases where the MLE exists.
+Moreover, simulation-based methods may have particular susceptibilities to the convex-hull problem. As stated by \cite[p. 7]{Handcock2003}, ``[i]f the model used to simulate the graphs is not close enough to produce realizations that cover the observed values of the statistics, the MC-MLE will not exist even in cases where the MLE does.'' For example, many common network models, such as triangle-based models, can lead to bimodal distributions of graph statistics that simulation-based methods have difficulty with, even when the MLE falls between the modes \cite{Hunteretal2012}. Therefore, even though the non-existence issue is not completely avoided, a method based on exact (non-simulation) inference may not only provide a better solution (in general) by avoiding the additional uncertainty induced by simulations and approximations, but may help mitigate the problem in cases where the MLE exists.
 
 Of course, the statistical analysis of a single small network is going to be uninformative due to the small numbers of dyads, and a high restriction in the variability of possible subgraph statistics. Fortunately, small network data is typically collected from \textit{samples} of small groups, which allows for the development of models to analyze structural variation both within and across small networks. If we assume that the sample of networks comes from a population of networks (groups) that are governed by the same data generating process, we end up with the following likelihood, defining a completely-pooled model:
 
@@ -118,19 +137,20 @@ Of course, the statistical analysis of a single small network is going to be uni
     	}
 \end{multline}
 
-\noindent Where $P$ denotes the number of networks used in the model, and $\kappa_p\left(\params, \Indepvar_p\right)$ is explicitly calculated, unlike existing approaches to ERGM estimation. We call this framework, which is a revisited version of ERGM in the case of small networks, \ergmito{}\footnote{The \textit{ito}/\textit{ita} suffix is used in Spanish to denote small, or affection. We are especially grateful to George Barnett who proposed the name during the North American Social Networks Conference in 2018.}.
+\noindent Where $P$ denotes the number of networks used in the model, and $\kappa_p\left(\params, \Indepvar_p\right)$ is explicitly calculated, unlike existing approaches to ERGM estimation. We call this framework, which is a revisited version of ERGM in the case of small networks, \ergmito{}. In general, this extension can be feasibly applied to small graphs containing at most 6 nodes if directed, or 8 if undirected. %\footnote{The \textit{ito}/\textit{ita} suffix is used in Spanish to denote small, or affection. We are especially grateful to George Barnett who proposed the name during the North American Social Networks Conference in 2018.}.
 
-One complication with ERGMs involving multiple networks is that such models are usually not projective \cite{shalizi2013}, and the magnitude of parameter estimates and their standard errors (at least with network statistics in standard use) are all implicitly conditioned on network size. This means caution is required when combining or comparing parameter estimates from different networks. Even the interpretation of the basic edge count parameter can become difficult; as pointed out in \cite{Krivitsky2011}, assuming a common edge parameter in networks of different sizes is equivalent to assuming equal edge probabilities in an edge-only model. However, many real-world social networks are sparse, with a density that grows much more slowly than network size. 
+One issue that may be of concern is the feasibility of the underlying assumptions when estimating pooled-data models with networks of different sizes. Since in general parameter estimates encode network size, one may argue that pooling networks of different sizes into a single model may not be appropriate, yet there are several ways to control for these sorts of heterogeneity, for example, including fix or random effects at graph size level, or using approaches such as those described in \cite{Krivitsky2011,Krivitsky2015,Butts2015}. In the cases presented in this paper, we focus on samples of networks that are of similar sizes, and thus within a small range of values, and we assume there is a common data-generating process. 
 
-This is a significant concern in cases where samples of networks may span a wide range of sizes, and requires careful consideration of issues regarding choice of network statistics and the appropriateness of a completely-pooled approach (compared to, for example, a partially-pooled approach that allows for variability in estimates across networks). However, in the case outlined in this paper, we focus on a sample of networks that are of similar size, and we assume there is a common data-generating process. The requirements and assumptions of the completely-pooled model in \eqref{eq:ergm-pooled} therefore can be assumed to hold. 
+% This means caution is required when combining or comparing parameter estimates from different networks. Even the interpretation of the basic edge count parameter can become difficult; as pointed out in \cite{Krivitsky2011}, assuming a common edge parameter in networks of different sizes is equivalent to assuming equal edge probabilities in an edge-only model. However, many real-world social networks are sparse, with a density that grows much more slowly than network size. 
 
-The simulations and model fitting were conducted using the R package \texttt{ergmito}, which has been developed to implement the methods described in this paper.
+In the following sections we illustrate and investigate the properties of estimating ERGMs for small networks using this approach. All simulations and model fitting were conducted using the R package \texttt{ergmito}, which has been developed to implement the methods described in this paper.
 
 \section{Illustration with simulated data: fivenets}
 
 \subsection{Data-generating-process and model fitting}
 
-In the following section we work with a simulated data set that was created using the data-generating-process of \ergmitos{}. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}\footnote{The R package is available to be downloaded at  \url{https://github.com/muriteams/ergmito}.}. The data set contains five simulated networks with nodal attributes (we use gender in the following example), and the networks were generated using the following specification:
+Starting with a s simple example, we now look at a simulated data set that was created using the data-generating-process of \ergmitos{}. This particular dataset, which we call ``fivenets'', is included in the in the R package \texttt{ergmito}\footnote{The R package is available to be downloaded at  BLIND REVIEW.}. %\url{https://github.com/muriteams/ergmito}.}.
+The data set contains five small graphs with nodal attributes (we use gender in the following example), with the networks generated using the following specification:
 
 \begin{multline*}
 \Prcond{\Adjmat = \adjmat}{\Indepvar, \params} = \\
@@ -142,23 +162,50 @@ In the following section we work with a simulated data set that was created usin
     }
 \end{multline*}
 
-\noindent where $\params_{edges} = -2.0$ and $\params_{same} = 2$. Using this equation we draw five networks of size five. The process of ``homophily'' is represented by a parameter that is defined as the number of ties in which ego and alter have the same gender, $\params_{same}$. Before drawing the networks we randomly generated the node attribute (gender) parameter to each vertex as a Bernoulli with parameter 0.5. \autoref{fig:fivenets} shows the generated networks, including their nodal attributes.
+\noindent where $\params_{edges} = -2.0$ and $\params_{same} = 2.0$. Using this equation we draw five networks of size four. The process of ``homophily'' is represented by a parameter that is defined as the number of ties in which ego and alter have the same gender, $\params_{same}$. Before drawing the networks we randomly generated the node attribute (gender) to each vertex as a Bernoulli with parameter 0.5. \autoref{fig:fivenets} shows the generated networks, including their nodal attributes.
 
 \begin{figure}[tb]
     \centering
     \includegraphics[width=.6\linewidth]{fivenets_graphs.pdf}
     \caption{\label{fig:fivenets}Fivenets data set. These graphs were randomly drawn from an ERGM distribution with two parameters: number of edges and gender homophily, with parameters equal to -2.0 and 2.0 respectively.}
-    \label{fig:my_label}
 \end{figure}
 
-Using the \texttt{ergmito} R package, we fit three different models to the data\footnote{Some details regarding the computational aspects of the model fitting process are provided in \ref{appendix:mle}.}: (1) a Bernoulli graph, which is a model that only includes the ``edges'' parameter, (2) a model with ``gender homophily'' as its only parameter, and finally (3) a model including both ``edges'' and ``gender homophily'', this is, the correct specification of the model. \autoref{table:coefficients} shows the estimation results of the three different specifications of the model and as expected, model (3) has the best overall fit to the data. Furthermore, since all three models were fitted using MLE, we can compare the edgecount and homophily models with the full model using Likelihood Ratio tests \cite{Zeileis2002}. The \textit{goodness of fit} of this model is evaluated in the following section.
+Using the \texttt{ergmito} R package, we fit three different models to the data: (1) a Bernoulli graph, which is a model that only includes the ``edges'' parameter, (2) a model with ``gender homophily'' as its only parameter, and finally (3) a model including both ``edges'' and ``gender homophily'', which is the correct specification of the model. Some details regarding the computational aspects of the model fitting process are provided in \ref{appendix:mle}.
+
+In general, while practitioners are used to deal with a single set of observed (sometimes called target) sufficient statistics, pooled models instead feature an array observed statistics. \autoref{tab:obs-suff-fivenets} displays the counts used in this model.
+
+% latex table generated in R 3.6.3 by xtable 1.8-4 package
+% Wed Apr 29 09:52:45 2020
+\begin{table}[ht]
+\centering
+\begin{tabular}{l*{2}{m{.2\linewidth}<\centering}}
+  \toprule
+Net id & edgecount & count of gender homophilic ties \\ 
+  \midrule
+  1 &   2 &   2 \\ 
+    2 &   7 &   5 \\ 
+    3 &   4 &   3 \\ 
+    4 &   5 &   5 \\ 
+    5 &   2 &   1 \\ 
+   \bottomrule
+\end{tabular}
+\caption{\label{tab:obs-suff-fivenets}Observed sufficient for the \textit{fivenets} dataset. Different to what practitioners are acustum, in the case of pooled-data models, there is no one set but an array of observed (target) sufficient statistics. This table shows the \textit{edgecount} and the \textit{count of gender homophilic ties} in the \textit{fivenets} dataset.}
+\end{table}
+
+\autoref{table:coefficients} shows the estimation results of the three different specifications of the model and as expected, model (3) has the best overall fit to the data. Furthermore, since all three models were fitted using MLE, we can compare the edgecount and homophily models with the full model using Likelihood Ratio tests \cite{Zeileis2002}. 
+
+
+
+The \textit{goodness of fit} of this model is evaluated in the following section.
+
+It is also important to note here that the \texttt{ergm} package can be used to calculate exact likelihoods, and furthermore, this feature has been available in the package for a long time. Some of the additional features and extensions provided in the \texttt{ergmito} package are: a simple way of estimating pooled-data models, simulating small networks using exact likelihoods, evaluating goodness-of-fit at the graph level for pooled-data models, and including arbitrary effects like interaction effects and transformation of the canonical ERGM terms, features that will be illustrated later on in the paper.
 
 \input{figures/fivenets_fit.tex}
 
 
 \subsection{Goodness-of-fit in \ergmitos}
 
-Researchers that apply ERGMs should be familiar with the goodness-of-fit (GOF) diagnostics that are used to assess how well the estimated model can reproduce graphs that are similar to the observed graph on a range of local and global graph statistics \cite{Hunteretal2008}. In the case of \ergmitos{} applied to small networks, local graph statistics will be more relevant than global statistics to assess GOF. For example, the graph geodesic distribution (i.e., the distribution of shortest-path lengths) is often used to assess GOF for larger networks, but this is clearly less relevant in the case of small networks (like in our case, containing at most 6 nodes if directed, or 8 if undirected) because the shortest-path length between any two nodes typically lies between 1 and 2 steps. Therefore, we focus the GOF analysis on the parameters fit in the model as the bare-minimum of local graph statistics, as shown in \autoref{fig:fivenets-gof}. An important difference in our approach compared to traditional GOF assessments for ERGMs is that we are able to enumerate the full support of the model, and so instead of showing a boxplot we present a 90\% exact confidence interval per-statistic per network, comparing the fitted model's distribution with the observed parameters. A detailed discussion of this aspect of the \ergmitos{} is presented at the end of this paper.
+Researchers that apply ERGMs should be familiar with the goodness-of-fit (GOF) diagnostics that are used to assess how well the estimated model can reproduce graphs that are similar to the observed graph on a range of local and global graph statistics \cite{Hunteretal2008}. In the case of \ergmitos{} applied to small networks, local graph statistics will be more relevant than global statistics to assess GOF. For example, the graph geodesic distribution (i.e., the distribution of shortest-path lengths) is often used to assess GOF for larger networks, but this is clearly less relevant in the case of small networks (like in our case, containing at most 6 nodes if directed, or 8 if undirected) because the shortest-path length between any two nodes typically lies between 1 and 2 steps. Therefore, we focus the GOF analysis on the parameters fit in the model as the minimum set of local graph statistics, as shown in \autoref{fig:fivenets-gof}; and depending on the model complexity a more comprehensive set of local statistics may be needed. An important difference in our approach compared to traditional GOF assessments for ERGMs is that we are able to enumerate the full support of the model, and so instead of showing a boxplot we present a 90\% exact confidence interval per-statistic per network, comparing the fitted model's distribution with the observed parameters. % A detailed discussion of this aspect of the \ergmitos{} is presented at the end of this paper (\sectionSection XX).
 
 \begin{figure}[tb]
     \centering
@@ -180,133 +227,238 @@ The ability to calculate the surface of the exact likelihood function provides a
 
 \section{Simulation study}
 
-We conducted two sets of simulations studies in which we compare the performance of MLE with MC-MLE in terms of bias, power, and type I error rates. In the first set, we analyze empirical bias and empirical power of each estimator in an scenario in which the ERGM is defined by \textit{edgecounts} and \textit{transitive triads}. For the second set of simulations, we look at empirical type I error rates when ERGMs are misspecified by including a \textit{transitive triad} term in the context of a data-generating-process that only includes an \textit{edgecount} statistic.
+We conducted two sets of simulations where we compare the performance of the Maximum Likelihood Estimator [MLE] with that of the Monte Carlo MLE [MC-MLE] and Robbins-Monro Stochastic Approximation [RM] in terms of bias, power, type I error rates, and overall computation time. In the first set of simulations, we analyze empirical bias and empirical power of each estimator in an scenario where the ERGM is defined by \textit{edgecounts} and \textit{transitive triads}. For the second set of simulations, we look at empirical type I error rates when ERGMs are mis-specified by including a \textit{transitive triad} term in the context of a data-generating-process that only includes an \textit{edgecount} statistic.
 
-The code used to reproduce this entire section can be found at \url{https://github.com/muriteams/ergmito-simulations}.
+The code used to reproduce this entire section can be found at BLIND REVIEW. %\url{https://github.com/muriteams/ergmito-simulations}.
 
 \subsection{\label{subsec:design}Empirical Bias and Power}
 
-Using the \ergmito{} R package, we generated 20,000 samples (datasets) consisting of several small networks defined by the $edges$, edgecount, and $ttriads$, number of transitive triads, parameters. Each sample was generated using different combinations of parameters. While all come from an ERGM model defined by edgecounts and number of transitive triads, for every sample we specified: (1) population parameters for the ERGM, (2) size of the sample (number of networks in the sample), and (3) composition of the sample in terms of the combination of networks of size four and five. A detailed description of each one of these three components used to draw the samples follows:
+Using the \ergmito{} R package, we generated 20,000 samples (datasets), with each sample consisting of several small networks defined by the $edges$, edgecount, and $ttriads$, number of transitive triads, parameters. Each sample was generated using different combinations of parameters. While all come from an ERGM model defined by edgecounts and number of transitive triads, for every sample we specified: (1) population parameters for the ERGM, (2) the size of the sample (i.e., the number of networks in the sample), and (3) the composition of the sample in terms of the combination of networks of size four and five. A detailed description of each one of these three components used to draw the samples follows:
 
 \begin{enumerate}
-\item \textbf{Population parameters} First we drew two numbers from a piece-wise Uniform distribution with values in $[-2, -.1]\cup[.1, 2]$, ($\params_{edges}, \params_{ttriads}$), which corresponded to the parameters associated to the statistics \textbf{edgecount} and \textbf{number of transitive triads}. This specifies the ERGM from which we will be drawing the networks from. This is akin to the approach taken by \cite{Schweinberger2015} , although we took a more conservative approach than their ranges of (-5,0) and (0, 5) for the parameters ``edges'' and ``triangles'' in order to increase the number of non-degenerate samples, this is, samples composed mostly of either empty of fully connected graphs.
+\item \textbf{Population parameters}: First we drew two numbers from a piece-wise Uniform distribution with values in $[-2, -.1]\cup[.1, 2]$, ($\params_{edges}, \params_{ttriads}$), which corresponded to the parameters associated to the statistics \textbf{edgecount} and \textbf{number of transitive triads}. This specifies the ERGM from which we will draw the networks from. This is akin to the approach taken by \cite{Schweinberger2015} , although we took a more conservative approach than their ranges of (-5,0) and (0, 5) for the parameters ``edges'' and ``triangles'' in order to increase the number of non-degenerate samples (i.e., samples composed mostly of either empty of fully connected graphs).
 
-\item \textbf{Number of networks per sample} Then, we specified the number of networks to generate from the model defined in the previous step, using one of the following sample sizes $\{5, 10, 30, 50, 100, 150, 200, 300\}$. The 20,000 simulations were equally split across the various sample sizes (e.g., the overall simulation contained 2,500 samples with 5 networks, 2,500 samples with 10 networks, etc.)
+\item \textbf{Number of networks per sample} Then, we specified the number of networks to generate from the models defined in the previous step, using one of the following sample sizes $\{5, 10, 30, 50, 100, 150, 200, 300\}$. The 20,000 simulations were equally split across the various sample sizes (i.e., the simulation study was based on 2,500 samples comprised of 5 networks; 2,500 samples comprised of 10 networks, etc.)
 
-\item \textbf{Number of nodes per network} Finally, the composition of each sample in terms of the number of vertices that each network has was uniformly-random selected from the pairs $\{N, 0\}, \{N - 1, 1\}, \dots, \{1, N - 1\}, \{0, N\}$, where the first number of each pair is the number of networks of size 4, and the second is the number of networks of size 5 in the sample, for example, if the sample size selected in the previous step was 30, then the possible pairs to select from would be $\{30, 0\}, \{29, 1\}, \dots, \{1, 29\}, \{0, 30\}$, so samples in which all networks were of size 4 (meaning we draw the pair $\{30, 0\})$ or size 5 (again, selecting the pair  $\{0, 30\}$) were equally likely. 
+\item \textbf{Number of nodes per network} Finally, the composition of each sample in terms of the number of nodes that each network has was uniformly-random selected from the pairs $\{N, 0\}, \{N - 1, 1\}, \dots, \{1, N - 1\}, \{0, N\}$, where the first number of each pair is the number of networks of size 4, and the second is the number of networks of size 5 in the sample, for example, if the sample size selected in the previous step was 30, then the possible pairs to select from would be $\{30, 0\}, \{29, 1\}, \dots, \{1, 29\}, \{0, 30\}$, so samples in which all networks were of size 4 (meaning we draw the pair $\{30, 0\})$ or size 5 (again, selecting the pair  $\{0, 30\}$) were equally likely. 
 \end{enumerate}
 
-For each one of the 20,000 simulated datasets, we then estimated the model using both MLE--as implemented in the \ergmito{} R package \cite{vegayon2018}--and MC-MLE--using statnet's \texttt{ergm} R package \cite{Handcock2018,hunter2008}. In the case of the latter, the pooled estimation was done by fitting what is know in the literature as a block-diagonal model in which (a) networks are stacked together in a single adjacency matrix, and (b) the sampling space for the MCMC process is constrained to sample from graphs where ties are only possible within blocks. We set the MCMC control parameters \textit{interval} and \textit{samplesize} to 2,048 (double the default values) to increase precision of the parameter estimates.
+For each one of the 20,000 simulated datasets, we then estimated the model using MLE--as implemented in the \ergmito{} R package %\cite{vegayon2018}
+--MC-MLE, and RM--using statnet's \texttt{ergm} R package \cite{Handcock2018,hunter2008}. In the case of the latter two, the pooled estimation was done by fitting what is know in the literature as a block-diagonal model in which (a) networks are stacked together in a single adjacency matrix, and (b) the sampling space for the MCMC process is constrained to sample from graphs where ties are only possible within blocks. In the case of the MCMC estimator, we set the control parameters \textit{interval} and \textit{samplesize} to 2,048, with a burn-in of 2,048 x 16 = 32768, all double the of the current default values specified in the \texttt{ergm} package, so that we could increase the precision of our estimates. And in  cases where the algorithm failed to return any estimates, we increased the control parameters \textit{interval} and \textit{samplesize} to 10,000.
 
-\subsubsection{Empirical Bias and Power: Samples in which either of MC-MLE or MLE returned with an error}
+\subsubsection{Analysis preface}
 
-Of the models fit to the 20,000 datasets (each comprised of samples of small networks), in 14,963 cases the models were successfully fit using both the MLE and MC-MLE estimators. In 121 cases, both implementations failed with an error; for the remaining cases (4916) the MC-MLE (ERGM) failed in most of them (4905 of 4916), while implementation of the MLE (ERGMito) estimator failed in only 14 of these 4916 cases. Of the 4905 cases in which the MC-MLE failed, MLE was able to detect a significant effect in both parameters in 697 cases (i.e., 14 percent of these cases). Conversely, of the 14 cases in which the MLE failed, MC-MLE was not able detect a significant effect in any of these cases. \autoref{fig:failed-tree} summarizes the succesful and failed models described above.
+After simulating the data and estimating the models, we realized that there were several cases in which the programs implementing the three compared algorithms either would not converge or would fail without returning a meaningful message to the user. First, the MLE implementation in \texttt{ergmito} had zero errors, meaning that, even if the MLEs did not exists or the optimization algorithm failed to converge, the program was able to return to the user with a meaningful report in all 20,000 cases. Second, while in some cases the MC-MLE implementation of the \texttt{ergm} package did failed without returning \textit{any} form of results, in all of the instances where this occurred, 97 of the 20,000, the program was able to provide the user with a meaningful report of what caused the error. Third, in the case of the Robbins-Monro algorithm [RM] implementation in the \texttt{ergm} package, we observed a significantly high error rate. In about a 25\% of the samples, the \texttt{ergm} function failed during the estimation process, returning with an uninformative error message to the user (``\textit{NA/NaN/Inf in foreign function call (arg 13)}''). Table \ref{tab:error-sampsize} shows the number of errors as a function of sample size (number of networks) per estimation method.
 
-\begin{figure}
-	\centering
-	\caption{\label{fig:failed-tree}Distribution of the failed estimations. A failed estimation attempt refers to the case in which the implementation of the algorithm (ERGM for the MC-MLE, and ERGMito for the MLE method), returned with an error.}
-	\includegraphics[width=.5\linewidth]{failed-tree.pdf}
-\end{figure}
-
-To gain insight into the problems causing the failed models, we considered the distribution of the sufficient statistics. These indicate that most of the problems arose in situations where the sufficient statistics were near to the boundary of the support. This is illustrated in \autoref{fig:failed}, and shows that in most of the cases in which both methods failed, the sufficient statistics were mostly saturated, meaning they reached the maximum possible value because the  cases sampled were largely composed of fully connected networks. Given errors arose when the set of sufficient statistics was close to saturation, both ERGM and ERGMito should consider those cases and test for possible failures during the estimation process.
-
-\begin{figure}
-	\centering
-	\caption{\label{fig:failed}Distribution of the average sufficient statistics per sample. Since samples can contain networks of sizes four and five, we have re-scaled the sufficient statistics counts by each network size's corresponding maximum value so these range from zero to one.}
-	\includegraphics[width=.8\linewidth]{failed.pdf}
-\end{figure}
-
-We also considered if the rate of model failure was greater when the dataset contained a smaller sized sample of networks. \autoref{tab:error-sampsize} shows the error rates by sample size for both implementation methods, and it is clearly higher for smaller samples (particularly less than 30 networks), and this is especially true for MC-MLE. 
-
-Moreover, if the optimization algorithms are able to return anything, both ERGM and ERGMito try to compute variance-covariance matrices using the model's log-likelihood, this being approximated in the case of MC-MLE. It is important to note that in the case that the Hessian matrix is not p.s.d (positive-semi-definite), both ERGM and ERGMito use the Moore-Penrose generalized inverse algorithm as implemented in the R package MASS \cite{Venables2002}. For more on the interpretation of variance-covariance matrices when the Hessian is not p.s.d., see \cite{Gill2004}. Details on the evaluation of parameter estimates in ERGMIito can be found in \autoref{sec:evaluation-of-estimates}.
-
-% latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Wed Sep 11 15:07:30 2019
+% latex table generated in R 3.6.3 by xtable 1.8-4 package
+% Sun Apr 26 23:39:32 2020
 \begin{table}[ht]
-	\centering
-	\begin{tabular}{lcc}
-		\toprule & \multicolumn{2}{c}{P(Error)} \\ \cmidrule(r){2-3}
-		Sample size & MC-MLE & MLE \\ 
-		\midrule
-		5 & 0.35 & 0.00 \\ 
-		10 & 0.32 & 0.03 \\ 
-		30 & 0.27 & 0.01 \\ 
-		50 & 0.25 & 0.01 \\ 
-		100 & 0.23 & 0.00 \\ 
-		150 & 0.20 & 0.00 \\ 
-		200 & 0.20 & 0.00 \\ 
-		300 & 0.18 & 0.00 \\ 
-		\bottomrule
-	\end{tabular}
-	\caption{\label{tab:error-sampsize}Failure probability (software implementation) by sample size.} 
+\centering
+\begin{tabular}{lccc}
+\toprule & \multicolumn{3}{c}{\# of errors} \\ \cmidrule(r){2-4}
+Sample size & MLE & MC-MLE & RM \\ 
+  \midrule
+5 &   0 &  44 & 1,274 \\ 
+  10 &   0 &  21 & 1,058 \\ 
+  30 &   0 &  10 & 760 \\ 
+  50 &   0 &   3 & 668 \\ 
+  100 &   0 &   6 & 583 \\ 
+  150 &   0 &   3 & 507 \\ 
+  200 &   0 &   4 & 508 \\ 
+  300 &   0 &   6 & 460 \\ 
+  \midrule Total &   0 &  97 & 5,818 \\ 
+   \bottomrule
+\end{tabular}
+\caption{\label{tab:error-sampsize}Number of times the program failed to fit a model and returned with an error. This shows the overall error rate over the full set of 20,000 simulated samples. All but 3 errors of the RM implementation happened on cases where the sufficient statistics where on the boundary.} 
 \end{table}
 
 
-Finally, it is important to highlight that unexpected errors during the estimation process, despite being associated with properties of each estimation method, are issues that could be resolved through software development and so can be improved.
+Notwithstanding the high number of errors of the RM implementation, most of the errors (all but three) occur on realizations of the data-generating-process that yielded uninteresting cases where either of observed sufficient statistics was on the boundary of their support, e.g. fully connected graphs or graphs with no triads. Figure \ref{fig:failed} shows the distribution of the sufficient statistic by whether the algorithm converged or failed to do so. While in general MLEs can be obtain in some of those cases (see \cite{Handcock2003}), estimating such models has no practical utility in the general case, so we focused our analysis on samples of networks for which the aforementioned model is appropriate. In particular, all the following analyses include only those data sets where the observed sufficient statistics, \textit{number of edges} and \textit{number of transitive triads}, were not on the boundary of its support for \textit{at least} one network in the sample, in other words, we \textit{included} the sample if it: (a) had at least one not fully connected graph, and (b) had at least one transitive triads in at least one network. Of the 20,000 simulated data sets, 14,185 met the criteria. 
 
-\subsubsection{Empirical Bias and Power: Samples fitted successfully}
-
-Out of the 20,000 model fitting attempts on the simulated datasets, about 25\% of those fit with either MLE or MC-MLE failed to return an estimate. The results that follow only include those samples in which both MLE and MC-MLE methods returned without an error. As shown in \autoref{fig:bias}, both estimation methods behaved similarly in terms of empirical bias in the models studied here. As the size of the sample of networks in the dataset increased (i.e., when there were more networks within the sample), the empirical bias of both MC-MLE and MLE decreased, as expected.
-
-\begin{figure}
-	\centering
-	\caption{\label{fig:bias}Empirical distribution of the bias per model parameter, for MC-MLE and MLE estimation methods. In general we see that the parameter estimates' bias is centered around zero and both MC-MLE (ERGM) and MLE (ERGMito) have about the same bias in our simulation study.}
-	\includegraphics[width=.8\linewidth]{bias-02-various-sizes-4-5-ttriad.pdf}
+\begin{figure}[tb]
+ 	\centering
+ 	\caption{\label{fig:failed}Distribution of the average sufficient statistics per sample. Since samples can contain networks of sizes four and five, we have re-scaled the sufficient statistics counts by each network size's corresponding maximum value so these range from zero to one.}
+ 	\includegraphics[width=.8\linewidth]{failed.pdf}
 \end{figure}
 
-As shown in \autoref{fig:power}, both MC-MLE and MLE behave very similarly with empirical power levels increasing as the size of the sample of networks increases in the dataset size (the x-axis of each sub-figure), and as the effect size increases (the y-axis of each sub-figure). Moreover, we compared power levels using two-sample proportion tests and found no significant differences between the power levels of MC-MLE and MLE. It is interesting to note that, in the case of effect sizes of magnitude [0.5, 1.0), the discovery rate for the \texttt{ttriad} parameter reaches nearby 0.75 for sample sizes between 30 to 50 networks, which is a rather common sample size in the study of small networks such as teams, families, and sometimes ego-networks. 
+Regarding the cases in which any of the methods fail to converge, and in particular, had a non-invertible Hessian matrices (not positive-semi-definite), all methods used the Moore-Penrose generalized inverse algorithm as implemented in the R package MASS \cite{Venables2002}. For more on the interpretation of variance-covariance matrices when the Hessian is not p.s.d., see \cite{Gill2004}. Details on how \texttt{ergmito} deals with the results from the optimization algorithm and how it communicates the results to the user can be found in \autoref{sec:evaluation-of-estimates}.
+
+Finally, the reader should bear in mind that  unexpected errors during the estimation process, despite being associated at some level with properties of each estimation method, are issues that can be captured by the program, and thus, be managed in an informative way so that the user has a better understanding regarding the possible causes of the problem. We now present the results from our simulation study.
+
+\subsubsection{Empirical Bias and Power}
+
+As shown in \autoref{fig:bias}, all three estimation methods behaved similarly in terms of empirical bias in the models studied here. As the size of the sample of networks in the dataset increased (i.e., when there were more networks within the sample), the empirical bias of all three, MLE, MC-MLE and RM, decreased, as expected.
+
+\begin{figure}[tb]
+	\centering
+	\caption{\label{fig:bias}Empirical distribution of the bias per model parameter, for MC-MLE and MLE estimation methods. In general we see that the parameter estimates' bias is centered around zero and both MC-MLE (ERGM) and MLE (ERGMito) have about the same bias in our simulation study.}
+	\includegraphics[width=.9\linewidth]{bias.pdf}
+\end{figure}
+
+Empirical power levels, calculated as the proportion of times that the method reported a significant effect in the same direction as the DGP parameter, is depicted in \autoref{fig:power}. For each method, a single bar in the figure shows the empirical power level for the corresponding combination of sample size (x-axis), parameter (columns), and effect size (rows). Three main aspects to highlight: First, as expected, power increases as both sample and effect increase; second, both MLE and MC-MLE behave very similarly with no statistically significant differences across sample and effect size; and third, compared to MLE, RM showed a statistically significant smaller power level at various sample and effect sizes combinations, with the largest differences observed on transitive triads. Again, as mentioned earlier, while there may be some inherent properties of each method that may benefit MLEs, readers must bear in mind that the implementation of the RM algorithm used here has received less attention, and thus less optimization, that the MC-MLE method. Furthermore, none of the control parameters associated with the Robbins-Monro Stochastic Approximation method is properly documented in the \texttt{ergm} package, which is another indicator of the maturity level of its implementation in that package. Finally, as an anecdotal observation, it is interesting to see that, in the case of effect sizes of magnitude [0.5, 1.0), the discovery rate for the \texttt{ttriad} parameter reaches nearby 0.75 for sample sizes between 30 to 50 networks, which is a rather common sample size in the study of small networks such as teams, families, and sometimes ego-networks. 
+
+\begin{figure}[tb]
+	\centering
+	\caption{\label{fig:power}Empirical power by dataset size and effect size (the later considering only magnitude), for ERGM and \ergmito{} estimation methods. Power increases for both MC-MLE (ERGM) and MLE (\ergmito{}) with increases in the size of the dataset and effect size. There are indistinguishable differences in power between the two estimation methods.}
+	\includegraphics[width=.9\linewidth]{power.pdf}
+\end{figure}
 
 \autoref{fig:power-prop5s} shows the effect of the composition of the sample in each dataset, in terms of the proportion of networks of size five (vs. size four), and the number of networks per dataset. In this case, we observe no meaningful patterns that would indicate the dataset composition is related to power.
 
-\begin{figure}[ht]
-	\centering
-	\caption{\label{fig:power}Empirical power by dataset size and effect size (the later considering only magnitude), for ERGM and \ergmito{} estimation methods. Power increases for both MC-MLE (ERGM) and MLE (\ergmito{}) with increases in the size of the dataset and effect size. There are indistinguishable differences in power between the two estimation methods.}
-	\includegraphics[width=.9\linewidth]{power-by-model.pdf}
-\end{figure}
-
-\begin{figure}[ht]
+\begin{figure}[tb]
 	\centering
 	\caption{\label{fig:power-prop5s}Empirical power by proportion of networks of size five in the sample (color coded) and sample size (rows).}
-	\includegraphics[width=.7\linewidth]{power-by-prop-of-fives.pdf}
+	\includegraphics[width=.8\linewidth]{power-by-prop-of-fives.pdf}
 \end{figure}
 
-One notable difference between the two estimation methods was in computational time: using MLE makes the estimation process significantly faster. As shown in \autoref{fig:elapsedtime}, MLE (\ergmito{}) is orders of magnitude faster than MC-MLE (ERGM). Therefore, while both estimators show very similar properties in terms of power and bias, practitioners will benefit by using MLE (\ergmito{}) when modeling small networks because it may substantially reduce the estimation time.\footnote{While this is mostly true, there are some scenarios in which the speed gains may not be as dramatic as it has been showed here. The biggest computational bottleneck that \ergmito{} faces is the calculation of the full support of the sufficient statistics. In the case of structure-only statistics, \ergmito{}, and actually \textit{ergm}, computes the full distribution very quickly, but, as the model starts to become more complex, such calculation becomes more expensive.}
+One remarkable difference between the three estimation methods featured by the simulations is the overall computing time needed to fit the models. While the computation of exact likelihoods and gradients is still very computationally intensive, the total time needed to obtain MLEs is still  significantly less than what is needed to by the other two methods. As shown in \autoref{fig:elapsedtime}, MLE can be orders of magnitude faster than MC-MLE and RM. Therefore, while all three estimators show very similar properties in terms of power and bias, practitioners will benefit by using MLE when modeling small networks because it may substantially reduce computation time.
 
-\begin{figure}
+\begin{figure}[tb]
 	\centering
 	\caption{\label{fig:elapsedtime}Distribution of elapsed time (in seconds) for the estimation process for MC-MLE (ERGM) versus MLE (using \ergmito{}). Overall, the MLE implementation is orders of magnitude faster compared to the time required by the MC-MLE implementation to do the parameter estimation.}
-	\includegraphics[width=.9\linewidth]{bias-elapsed-02-various-sizes-4-5-ttriad.pdf}
+	\includegraphics[width=.9\linewidth]{time.pdf}
 \end{figure}
 
-
-
+Nevertheless, while MLE is generally faster than the other two methods, there are some scenarios in which the speed gains may not be as dramatic as those shown here. The biggest computational bottleneck that the MLE estimation faces is the calculation of the full support of the sufficient statistics. In the case of structure-only statistics, \texttt{ergmito}, and actually \textit{ergm}, computes the full distribution very quickly, but, as the model starts to become more complex, such calculation becomes more and more expensive. Yet, once the full enumeration of the support of sufficient statistics is done, finding MLEs becomes \textit{trivial}, making the implementation of other statistical tools such as bootstrap or forward/backward model selection feasible to implement. Bootstrapping of ERGMs is illustrated in \autoref{sec:empirical}.
 
 
 \subsection{Type I error rates}
 
-Using the same procedure described in \autoref{subsec:design}, we simulated 17,500 datasets comprised of Bernoulli networks (i.e., an ERGM model only defined by the \textit{edgecounts} sufficient statistic). In this case, we drew  different sets of sample sizes: for each of $\{5, 10, 15, 20, 30, 50, 100\}$ we generated 2,500 datasets using the Bernoulli model with \textit{edgecount} parameter uniformly distributed in the range $[-2, -.1]\cup [.1, 2]$. We then estimated the models using MC-MLE and MLE, as implemented in the ergm and ergmito R packages respectively, and calculated the type I error rates, using a misspecified model, this is, fitting ERGMs including a \textit{transitive triads} count statistic. 
+Using the same procedure described in \autoref{subsec:design}, we simulated 17,500 datasets comprised of Bernoulli networks (i.e., an ERGM model only defined by the \textit{edgecounts} sufficient statistic). In this case, we drew  different sets of sample sizes: for each of $\{5, 10, 15, 20, 30, 50, 100\}$ we generated 3,000 datasets using the Bernoulli model with \textit{edgecount} parameter uniformly distributed in the range $[-2, -.1]\cup [.1, 2]$. As with the previous simulation study, we then estimated the models using MLE, MC-MLE, and RM, and calculated the type I error rates using a misspecified model; that is, fitting ERGMs that included a \textit{transitive triads} count statistic. 
 
-As shown in table \autoref{tab:typeI}, when models are fit to datasets with samples sizes of 15 or less networks, the MLE estimates had smaller type I error rates, that were much closer to the nominal 5\% level, especially in small sample sizes. With datasets that had samples sizes of 20 or more networks, there was no statistically significant difference in type 1 error rates between the two methods.
+Table \ref{tab:typeI} shows the type I error rates per sample size for each of the three methods. In general, MLE report lower error rates compared to MC-MLE and RM, when models were fit to datasets with sample sizes of 20 or fewer networks, the MLE had a better performance than MC-MLE as it reported smaller type I error rates that were much closer to the nominal 5\% level. Datasets with 30 or more networks had no significantly different type I error rates between the two methods. Compared to RM, the simulation study shows MLE has a better performance when estimating pooled-data models with 20 or less networks.
 
-% latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Mon Sep  9 13:04:55 2019
-\begin{table*}[ht]
-	\centering
-	\begin{tabular}{ccccc}
-		\toprule & & \multicolumn{2}{c}{P(Type I error)} \\ \cmidrule(r){3-4}
-		Sample size & N. Simulations & MC-MLE & MLE & chi2 \\ 
-		\midrule
-		5 & 2,189 & 0.084 & 0.057 & 11.71 *** \\ 
-		10 & 2,330 & 0.070 & 0.045 & 12.46 *** \\ 
-		15 & 2,395 & 0.084 & 0.066 & 5.55 * \\ 
-		20 & 2,430 & 0.074 & 0.060 & 3.58  \\ 
-		30 & 2,460 & 0.057 & 0.052 & 0.67  \\ 
-		50 & 2,495 & 0.046 & 0.044 & 0.17  \\ 
-		100 & 2,499 & 0.048 & 0.048 & 0.00  \\ 
-		\bottomrule
-	\end{tabular}
-	\caption{\label{tab:typeI}Empirical Type I error rates. The $\chi^2$ statistic is from a 2-sample test for equality of proportions, and the significance levels are given by *** $p < 0.001$, ** $p < 0.01$, and * $p < 0.05$. The lack of fitted samples in some levels is due to failure of the estimation method.} 
-\end{table*}
+% latex table generated in R 3.6.3 by xtable 1.8-4 package
+% Mon Apr 27 18:47:22 2020
+\begin{table}[ht]
+\centering
+\begin{tabular}{*{2}{m{.1\linewidth}<\centering}ccccc}
+\toprule & & \multicolumn{3}{c}{P(Type I error)} & \multicolumn{2}{c}{$\chi^2$ (vs MLE)}\\ \cmidrule(r){3-5} \cmidrule(r){6-7}
+Sample size & N. Sims. & MLE & MC-MLE & RM & MC-MLE & RM \\ 
+  \midrule
+5 & 2,608 & 0.057 & 0.084 & 0.073 & 5.05 ** & 14.29 *** \\ 
+  10 & 2,811 & 0.065 & 0.076 & 0.084 & 6.94 *** & 2.12  \\ 
+  15 & 2,901 & 0.057 & 0.071 & 0.073 & 6.00 ** & 4.61 ** \\ 
+  20 & 2,924 & 0.054 & 0.056 & 0.067 & 4.57 ** & 0.08  \\ 
+  30 & 2,969 & 0.054 & 0.053 & 0.057 & 0.26  & 0.01  \\ 
+  50 & 2,992 & 0.052 & 0.049 & 0.054 & 0.08  & 0.35  \\ 
+  100 & 2,999 & 0.048 & 0.045 & 0.048 & 0.00  & 0.18  \\ 
+   \bottomrule
+\end{tabular}
+\caption{\label{tab:typeI}Empirical Type I error rates. The $\chi^2$ statistic is from a 2-sample test for equality of proportions, and the significance levels are given by *** $p < 0.01$, ** $p < 0.05$, and * $p < 0.10$. The lack of fitted samples in some levels is due to failure of the estimation method.} 
+\end{table}
+
+\section{Extended Application\label{sec:empirical}}
+
+In this final section, we apply the \ergmitos{} framework to a set of observed social networks in an experimental setting. The data was generated as part of a study that examined the emergence of social networks in small teams. 
+
+The analytic sample consists of 31 small mixed-gender teams that include either four (n=17 teams) or five members (n=14 teams). Individuals recruited for the study were University students, participating for research credit or compensation, who were assigned to the teams with two conditioning factors: (1) they did not know the other teammates, and (2) there must be at least one team member who identified as male, and one who identified as female. Each team met face-to-face in a laboratory setting to complete about one hour of group tasks. Immediately after the completion of the group tasks, the team networks were measured using name generators administered in an online survey (that was completed in the lab). \textit{Advice seeking} was one relationship measured, via the question ``\textit{Who did you go to for advice, information, or help to complete the group tasks?}'', and participants could select as many or as few teammates as they liked. These data were used to generate directed graphs that represent the advice-seeking network in each team, where $\adjmat_{ij} = 1$ if $i$ identified $j$ as someone they sought advice from. The subsequent analyses apply the \ergmitos{} framework to test hypotheses about the social processes that predict the team advice networks that emerged. 
+
+One research question of interest in the field of team science is the role of gender and gender-based homophily (i.e., the preference for individuals to form social ties with teammates who match them on gender) in the formation of team networks. On average, 55\% of each team's members were female, with no statistically significant difference between the teams (test of equal proportions) nor within the teams when compared to a null of 0.5 (exact binomial test). To test the hypothesis that advice relationships were more likely to form among teammates of the same gender, we apply two different approaches: Conditional Uniform Graph tests (also known as CUG tests), and ERGMs. In general, the relevant sufficient statistic that we will be looking at is defined as follows $\sum_{ij}\adjmat_{i,j}\isone{X_i = X_j}$, with $X_i$ equal to one if individual $i$ is female, and zero otherwise.
+
+
+
+\subsection{CUG test}
+
+CUG tests are a common way to perform hypothesis testing using social network data. Often researchers have data for a single network, and they generate a null distribution (often the U$|$MAN distribution) of a particular graph statistic by sampling networks that are similar to the network that was observed. In this applied example we have a sample of networks, therefore: (a) we have to be thoughtful about how the null is defined, and (b) we could examine the data one-graph-at-a-time, or jointly by pooling the data.
+
+We opted for the pooled approach, because the small size of our 31 networks meant that the networks translated into a small support for the U$|$MAN distribution, (i.e., in a lot of cases the null statistic took only three unique values). The data were pooled by calculating the average count of gender-matched ties within each group. The hypothesis to test is $H_0: S^{obs} - S = 0$, where $S^{obs}$ is the observed average number of gender-matched ties and $S$ is the expected average under the assumption that gender-homophily is not a prevalent feature of the data. 
+
+To generate the null distribution, we drew 5,000 samples and calculated the average number of gender-matched ties for each. Each sample was generated as follows: For $b = 0$ to 5,000, do:
+
+\begin{enumerate}
+    \item For each network $\graph_p$ in the data, generate a single draw from a U$|$MAN distribution conditioning on its observed dyadic census, $\graph_p^{(b)}$. This yielded a random U$|$MAN sample of 31 networks: $\left\{\graph_1^{(b)}, \dots, \graph_{31}^{(b)}\right\}$.
+    \item Calculate the average number of observed gender-homophilic ties in sample $b$, using the following formula:
+    \begin{equation*}
+        S^{(b)} = (31)^{-1}\sum_{p=1}^{31}\sum_{(i, j) \in \graph_p^{(b)}}\adjmat_{pij}^{(b)}\isone{X_{i} = X_{j}}
+    \end{equation*}
+    
+    Where $\adjmat_{pij}^{(b)}$ is the adjacency matrix of the $p$-th random network in the sample $b$.
+    \item Next $b$.
+\end{enumerate}
+
+Ultimately, we compared the observed average of gender-matched ties, $S^{obs}$, with the generated distribution $\left\{S^{(1)}, \dots, S^{(5,000)}\right\}$. To draw graphs from the U$|$MAN distribution we used the \texttt{rguman} function included in Statnet's sna R package \cite{butts2016}. The distribution of average number of homophilic ties under the null, and the observed average, is depicted in \autoref{fig:ci-cug-null}.
+ 
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=.7\linewidth]{figures/ci-cug-test.pdf}
+    \caption{Null distribution of number of average number of homophilic ties under the exact U$|$MAN distribution. The dotted line shows the location of the observed statistic $S^{obs}$.}
+    \label{fig:ci-cug-null}
+\end{figure}
+
+As illustrated figure \ref{fig:ci-cug-null}, the observed average number of gender-matched ties lies right in the middle of the null distribution; thus, failing to reject the null. Based on these results, we may conclude that gender homophily does not play a role in teammates advice seeking. While this method is useful for testing hypotheses about single processes, these uni-variate analyses are not particularly satisfying when the goal is to understand the many complex social processes that were likely to shape the networks. To do this we turn to ERGMs, which allow researchers to test more complex hypotheses and dig into social network data in a more statistically rigorous way.
+
+\subsection{ERGMs}
+
+In this section, we use the \texttt{ergmito} R package to model the team advice networks and test hypotheses about gender and network dynamics, and with it, illustrate how exact calculation of ERGM likelihoods can be leverage to go beyond CUG tests, and moreover, traditional ERGM analysis. The analysis will consist on two parts: (a) building a baseline model that only includes structural features of the graph, and (b) use that model to test whether gender-homophily is a prevalent feature of the data while at the same time controlling for other gender-based terms in a multivariate fashion.
+
+In the structural-terms-only model, we fitted five different models based on the following terms:
+
+\begin{itemize}
+    \item \textbf{Edge count} (edgecount): This accounts for the overall density of the graph and is usually compared to that of a constant term in regression analyses. This is calculated as $\sum_{ij}\adjmat_{ij}$.
+    \item \textbf{Number of transitive triads} (ttriple): This statistic, also known as balanced triangles or transitive triples, captures the phenomenon of social clustering and balance; where ``\textit{the friend of my friend is my friend}''. In this context it indicates that ``\textit{the advisor of my advisor is my advisor}''. This term is calculated as follows: $\sum_{i}\sum_{j<k}\adjmat_{ij}\adjmat_{jk}\adjmat_{ik}$.
+\end{itemize}
+
+To illustrate the flexibility of estimating ERGMs with the \texttt{ergmito} R package, we generated three additional terms to be included in the models using the \textit{edgecount} and \textit{ttriad} terms. First, we included two interaction effects, one per term, with an indicator variable which equal to one if the corresponding network was of size five and zero otherwise.
+
+In addition to those two interaction effects, we also added an offset term as that proposed by \cite{Krivitsky2011} which has the nice property of being invariant to size, i.e. \textit{scaling} with the size of the network. All these additional terms allowed us to control for differences as a function of the network size. What is remarkable of additional statistics is that users could add arbitrary interaction effects or variable transformations to the models, a feature that, as of today, cannot be achieved as easily in other available frameworks (see for example \cite{Hunter2013,Handcock2019}). Table \ref{tab:example-suffstats} shows an example of the terms included in the models for 6 of the 31 networks. Pooled-data ERGMs feature not a single vector of observed sufficient statistics but an entire matrix of them.
+
+% latex table generated in R 3.6.3 by xtable 1.8-4 package
+% Mon Apr 27 23:32:51 2020
+\begin{table}[ht]
+\centering
+\begin{tabular}{*{3}{c}*{3}{m{.15\linewidth}<\centering}}
+  \toprule
+  (1) & (2) & (3) & (4) & (5) & (6) \\
+$n$ & edges & ttriad & $\text{edges}\times\isone{n = 5}$ & $\text{ttriad}\times\isone{n = 5}$ & $\text{edges}\times\log{1/n}$ \\ 
+  \midrule
+  4 &  10 &  14 &   0 &   0 & -13.86 \\ 
+    4 &   6 &   2 &   0 &   0 & -8.32 \\ 
+    4 &   4 &   0 &   0 &   0 & -5.55 \\ 
+    5 &   6 &   1 &   6 &   1 & -9.66 \\ 
+    5 &   8 &   8 &   8 &   8 & -12.88 \\ 
+    5 &   6 &   2 &   6 &   2 & -9.66 \\ 
+    \multicolumn{6}{c}{\dots\textit{25 more rows}\dots} \\
+   \bottomrule
+\end{tabular}
+\caption{\label{tab:example-suffstats}Example of observed sufficient statistics for the team advice networks. Pooled-data ERGMs have multiple observed sufficient statistics (also known as target statistics). Furthermore, as shown here, we can manipulate common statistics as edgecounts (2) and transitive triads (3) to include, e.g. interaction effects (4) and (5), or more complex transformations, e.g. (6).}
+\end{table}
+
+With these five statistics in hand, we estimated five different models, including a bootstrapped version of the one with the best overall fit. \autoref{tab:ci-ergm-baseline} shows the results.
+
+\input{figures/ci-ergm-baseline}
+
+The results indicate that transitive triads (ttriple) were more prevalent than expected by chance; which is common in positive affiliation and collaboration networks. Furthermore, parameter estimates for the ttriple term are robust with significant and positive effects across the different model specifications. Second,  controlling for size of the network matters. The results of models (3) and (4) show that allowing networks of size 5 to have a different edgecount or transitive triads parameter (with networks of size 4 as a reference), significantly improves model fitting relative to model (1). Yet, as shown in model (5), these, the interaction effects, are not jointly significant. Regarding model (2), which includes the offset $edges \times \log{1/n}$, we see that the edgecount parameter flips from negative 0.72, to positive 0.73, which should be interpreted in the context of this offset change. For example, in the case of the Bernoulli model, the probability of an individual tie for a network of size 4 would be $\text{logit}^{-1}(-\log{4} + 0.73) \approx \text{logit}^{-1}(-0.66) \approx 0.34$, i.e. less than 0.5 which is the expected value under the null.
+
+Of the five models, model (3) has the best overall fit (lower AIC, BIC, and highest log-likelihood); although model (5) has a higher log-likelihood; but, not all of its terms are significant, hence we chose (3) as the structural baseline model. We complete this first stage of analysis by calculating the standard errors of model (3) using bootstrap; with the results reported in column (3b). This final model has no meaningful changes in standard errors compared to (3); although they are slightly smaller compared to MLEs in (3). Additionally, the elapsed time for this bootstrapping process was negligible: remarkably, we fit 1,000 ERGMs in about 10 seconds, which further highlights how speed and model specification-flexibility are key features of fitting ERGMs using Maximum Likelihood.
+
+The second phase of model specification, which uses model (3) as baseline, was focused on evaluating the role of gender and gender-homophily in the advice networks. For this we use following terms: 
+
+\begin{itemize}
+    \item \textbf{Gender homophily} (nodematch.Female): As showed before, this term equals to the number of ties in which ego and alter are matched on gender. This was calculated as: $\sum_{ij}\adjmat_{ij}\isone{X_{i} = X_{j}}$, where $X_i$ is one if $i$ is a female, and zero otherwise.
+    \item \textbf{Female-sender effect} (nodeocov.Female): This term, also known as activity effect, captures the propensity of females to send ties. Is is calculated as: $\sum_{ij}\adjmat_{ij}X_{i}$.
+    \item \textbf{Female-receiver effect} (nodeicov.Female): This term captures the propensity of females to receive ties. It is calculated as: $\sum_{ij}\adjmat_{ij}X_{j}$.
+\end{itemize}
+Again, taking advantage of the flexibility that the ML framework provides, we also explored transformations of the gender-homophily variable, including its square root and the variable to the power to two. 
+
+The standard errors of the  final \textit{best model} were again calculated using bootstrap. \autoref{tab:ci-ergm-full} shows the results.
+
+\input{figures/ci-ergm-full}
+
+The results provide no evidence in \autoref{tab:ci-ergm-full} that gender-homophily is a prevalent feature of the advice networks, as both the baseline (1) and the transformed versions, (2) and (3), do not reject the null $\theta_{\text{gender-homophily}} = 0$. Of the other gender-based effects included in the model, only the female-sender effect, model (4), is significant. With a coefficient equal to 0.46, the model indicates that females tended to nominate more of their team members as people they sought advice from, compared to males. Furthermore, we observe that the term nodeocov.Female is a confounder of gender-homophily, with the later changing from -0.03 in model (1), to -0.12 when the female-sender effect is included. Overall, these final models indicate that the team networks are best explained by preferences for balanced advice-seeking triads, and a tendency for females to seek advice from more of their teammates, compared to males. 
+
+\autoref{fig:ci-gof-full} shows the distribution of the sufficient statistic under the fitted model, 95\% exact confidence intervals, versus the observed set of sufficient statistics. With the exception of two networks--one that is a full graph and another that only has one tie--the C.I.s generated by model (4) are able to cover all other network+term combinations.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[]{figures/ci-ergmito-gof-full.pdf}
+    \caption{Distribution of the sufficient statistics under the ERGM specified by the parameters from model (4) in \autoref{tab:ci-ergm-full}. Each bar represents the exact 95\% confidence interval for the corresponding network+term combination, while the black dots show the location of the corresponding observed statistic. Red diamonds mark the observed statistics that fall out of the 95\% confidence interval. Of the 31 networks in the sample, it is only in two networks that the C.I.s don't cover the observed statistic, one that is fully connected and another that only has one tie.}
+    \label{fig:ci-gof-full}
+\end{figure}
+
+With Model (4), \autoref{tab:ci-ergm-full}, having the best fit overall (smallest AIC, BIC, and largest log-likelihood), we re-calculated its standard errors using bootstrapp, model (4b) with the elapsed time, again, remarkably short (90 seconds to fit a thousand models). While model (4) took roughly five seconds to be fitted, most of the computation time lies on calculating the support of the space of sufficient statistics. Once the the support of the sufficient statistics has been calculated, the optimization takes only a fraction of the time, which is why the bootstrap version of model (4) took about 0.09 seconds per repetition, and not 5.27 as the user may have expected. All this section's model fitting was done using a laptop computer with Ubuntu 18.04 LTS, 8GB of RAM, a quad-core processor Intel® Core i5-7200U CPU @ 2.50GHz, and using R version 3.6.3. The number of cores is relevant as the current implementation of the \texttt{ergmito} R package uses \texttt{RcppArmadillo} R package \cite{Eddelbuettel2014} which can be compiled using OpenMP, meaning that matrix algebra is multi-threaded.
+
+We further discuss our results in the following section.
 
 
 \section{Discussion}
@@ -317,15 +469,19 @@ Another major benefit of using the full likelihood directly -- when feasible -- 
 
 As a simple example, take recent work on multilevel network models \cite{slaughter2016multilevel}. In that work, constructing a multilevel Bayesian model of a sample of networks -- while conceptually straightforward -- required the development of custom code and algorithms to implement. By contrast, having the full likelihood available in R means that the same models studied in that paper (assuming small-N networks) can be constructed and estimated as easily as any other non-intractable model for which we can calculate the likelihood, using the full range of traditional tools and algorithms for ML and Bayesian estimation. This frees researchers from focusing only on models that are implementable in packages like statnet, and allows greater freedom to think about ways that models for graphs can be modified and incorporated into other statistical models. In addition, being able to estimate gradients opens the possibility of estimating models using modern Bayesian algorithms like Hamiltonian Monte Carlo (HMC) and stochastic gradient langevin dynamics (SGLD), which may offer advantages in terms of speed or scalability, respectively.
 
+An issue that has generated scientific discussion and is pertinent to mention here is the so-called ``projectivity problem'' \cite{shalizi2013}. The idea is that statistical inference of parameter of larger networks based on a sample or sequences of samples, subgraphs, from it may be inadequate if the data-generating-process lacks projectivity since parameter estimates are all implicitly conditioned on network size \cite[see]{shalizi2013}. Yet, as pointed out on \cite{schweinberger2017note}, projectivity is not a necessary condition for consistency of MLEs (see for example \cite{Krivitsky2011,Krivitsky2015}), and furthermore, ``[c]onsistency under replication does not require projectivity'' \cite[p. 4]{schweinberger2017note}, which supports the idea of obtaining MLEs from samples of similar-sized networks, as long as these come from the same data-generating-process. Nevertheless, as we will show later in \autoref{sec:empirical}, one of the benefits of calculating likelihoods exactly is that we can build more complex models that, if needed, account and test for things such as unobserved heterogeneity.
+
 The development and evaluation of \ergmitos{} in this simulation study also brings up topics for future work. One is the evaluation of model goodness-of-fit, and identifying statistics that are most important to evaluate with small networks, and that are reasonable to expect in a model that would suggest a ``good fit''. Because \ergmitos{} enable a rather simple way of conducting simulation studies (relative to traditional ERGMs), this will facilitate this work in future. Another topic to explore in future work is the value of \ergmitos{} for estimating ERGMs for very large networks, by drawing \textit{samples} of local network structures from a large graph. There is ongoing work extending ERGMs to very large networks \cite{stivala2019exponential,STIVALA2016167}, and \ergmitos{} may be a valuable and \textit{efficient} approach for fitting these pooled models to a large sample (e.g., in the order of the thousands) of small local network structures, with 5 or 6 nodes, drawn from a large network. 
 
-Overall,  \ergmitos{} provide a promising extension to the ERGM framework for the analysis of small social networks, which can generate a richer understanding of the local social processes that give rise to the formation of networks in small social groups, and processes that are the \textit{local social building blocks} of many larger social structures. 
+Overall,  \ergmitos{} provide a promising extension to the ERGM framework for the analysis of small social networks, which can generate a richer understanding of the local social processes that give rise to the formation of networks in small social groups, and processes that are the local social building blocks of larger social structures. 
 
-\section{Acknowledgements}
+% \section{Acknowledgements}
 
-This material is based upon work support by, or in part by, the U.S. Army Research Laboratory and the U.S. Army Research Office under grant number W911NF-15-1-0577. The views, opinions, and/or findings contained in this paper are those of the authors and shall not be construed as an official Department of the Army position, policy, or decision, unless so designated by other documents
+% BLIND REVIEW
 
-Computation for the work described in this paper was supported by the University of Southern California’s Center for High-Performance Computing (hpcc.usc.edu).
+% This material is based upon work support by, or in part by, the U.S. Army Research Laboratory and the U.S. Army Research Office under grant number W911NF-15-1-0577. The views, opinions, and/or findings contained in this paper are those of the authors and shall not be construed as an official Department of the Army position, policy, or decision, unless so designated by other documents
+
+% Computation for the work described in this paper was supported by the University of Southern California’s Center for High-Performance Computing (hpcc.usc.edu).
 
 \nocite{VegaYon2019,R,butts2016,Wickham2016,Leifeld2013}
 \printbibliography

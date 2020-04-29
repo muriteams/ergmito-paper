@@ -1,0 +1,25 @@
+\documentclass{article}
+
+\usepackage{setspace}
+\doublespace
+\usepackage[margin=1.5in]{geometry}
+
+\begin{document}
+
+\noindent December X, 2019
+
+\noindent \textbf{RE: Special issue on “Social Networks and Social Psychology"}
+
+\noindent Dear Editors,
+
+Please find attached our manuscript entitled ‘Exponential Random Graph models for Little Networks’, that we would like to submit to the Journal of Social Networks. The word count is 5,366 (incl. text, tables, and figures).
+
+The unique contribution: State-of-the-art methods for estimating Exponential Random Graph Models (ERGMs) have focused mostly on cases where the size of a network is such that calculating the probability function of these models is computationally not feasible. For this reason, most developments have centered around approximate estimation methods that strongly rely on simulations, e.g. bootstrapping or Markov Chain Monte Carlo. Surprisingly, while in the past decade computers have become significantly more powerful, there has been little to no research looking at those cases in which the exact calculation of ERGM probabilities is feasible.
+
+With this in mind, we have revisited the estimation of ERGMs for those cases in which the number of vertices in a graph is sufficiently small to calculate likelihoods exactly. We developed an R package that implements the estimation of pooled ERGMs for small networks using Maximum Likelihood. We call this R package “ergmito”. Using this new computational tool, we conducted a large simulation study to explore the statistical properties of MLE ERGM estimates, and compare them to those of Monte Carlo MLE (MC-MLE) estimation method as implemented in statnet’s “ergm” R package. Ultimately, we believe that the sole fact that we can calculate exact likelihoods for some of these models, which goes beyond using MLE, opens a big window for new methodological innovations that can be applied to modeling social networks with ERGMs.
+
+This work is not being considered for publication elsewhere. It is funded by the Multi-University Research Initiative on the Network Science of Teams (PIs: Singh, Bullo, de la Haye, Friedkin, Malone, Uzzi; W911NF-15-1-0577) and University of Southern California’s Center for High-Performance Computing. My co-authors and I do not have any personal or financial interests that might be interpreted as influencing the research. All authors have contributed to the content of the manuscript, and have been involved in drafting and revising the manuscript. I will be serving as the corresponding author, and have assumed responsibility for keeping my co-authors informed of our progress through the editorial review process.
+
+We hope that you find this paper suitable for publication in this journal.
+
+\end{document}
