@@ -2,21 +2,21 @@
 \begin{table*}[ht]
 \begin{center}
 \begin{tabular}{l c c c}
-\hline
+\toprule
  & Homopholy & Edgecount & Full model \\
-\hline
+\midrule
 Edgecount                    &              & $-0.69^{*}$    & $-1.70^{**}$ \\
                              &              & $(0.27)$       & $(0.54)$     \\
 Homophily (on Gender)        & $-0.12$      &                & $1.59^{*}$   \\
                              & $(0.34)$     &                & $(0.64)$     \\
-\hline
+\midrule
 LR-test statistic ($\chi^2$) & $7.04 ^{**}$ & $13.72 ^{***}$ & $$           \\
 AIC                          & $85.06$      & $78.38$        & $73.34$      \\
 BIC                          & $87.15$      & $80.48$        & $77.53$      \\
 Log Likelihood               & $-41.53$     & $-38.19$       & $-34.67$     \\
 Num. networks                & $5$          & $5$            & $5$          \\
-Convergence                  & $0$          & $0$            & $0$          \\
-\hline
+% Convergence                  & $0$          & $0$            & $0$          \\
+\bottomrule
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
 \caption{Fitted ERGMitos using the fivenets dataset. Looking at AICs and LR-test statistics, the full model (last column of the table) is the one with the best fit to the observed data. More over, the 95\% level CI of each covers the true parameters: $\hat\theta_{edges} \in [-2.77, -0.64]$; $\hat\theta_{Homophily} \in [0.33, 2.85]$.}
